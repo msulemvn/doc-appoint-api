@@ -26,6 +26,7 @@ use OpenApi\Annotations as OA;
  *     schema="Doctor",
  *     type="object",
  *     required={"id", "name", "specialization", "email"},
+ *
  *     @OA\Property(property="id", type="integer", example=1),
  *     @OA\Property(property="name", type="string", example="Dr. John Smith"),
  *     @OA\Property(property="specialization", type="string", example="Cardiology"),
@@ -39,6 +40,7 @@ use OpenApi\Annotations as OA;
  *     schema="Patient",
  *     type="object",
  *     required={"id", "name", "email"},
+ *
  *     @OA\Property(property="id", type="integer", example=1),
  *     @OA\Property(property="name", type="string", example="Jane Doe"),
  *     @OA\Property(property="email", type="string", format="email", example="patient@example.com"),
@@ -52,6 +54,7 @@ use OpenApi\Annotations as OA;
  *     schema="Appointment",
  *     type="object",
  *     required={"id", "patient_id", "doctor_id", "appointment_date", "status"},
+ *
  *     @OA\Property(property="id", type="integer", example=1),
  *     @OA\Property(property="patient_id", type="integer", example=1),
  *     @OA\Property(property="doctor_id", type="integer", example=1),
@@ -68,6 +71,7 @@ use OpenApi\Annotations as OA;
  *     schema="AvailableSlot",
  *     type="object",
  *     required={"doctor_id", "date", "start_time", "end_time", "available"},
+ *
  *     @OA\Property(property="doctor_id", type="integer", example=1),
  *     @OA\Property(property="doctor_name", type="string", example="Dr. John Smith"),
  *     @OA\Property(property="specialization", type="string", example="Cardiology"),
@@ -81,6 +85,7 @@ use OpenApi\Annotations as OA;
  *     schema="AppointmentRequest",
  *     type="object",
  *     required={"doctor_id", "appointment_date"},
+ *
  *     @OA\Property(property="doctor_id", type="integer", example=1),
  *     @OA\Property(property="appointment_date", type="string", format="date-time", example="2025-12-01 10:00:00"),
  *     @OA\Property(property="notes", type="string", example="Follow-up consultation")
@@ -90,12 +95,14 @@ use OpenApi\Annotations as OA;
  *     schema="UpdateAppointmentStatus",
  *     type="object",
  *     required={"status"},
+ *
  *     @OA\Property(property="status", type="string", enum={"confirmed", "cancelled", "completed"}, example="confirmed")
  * )
  *
  * @OA\Schema(
  *     schema="SuccessResponse",
  *     type="object",
+ *
  *     @OA\Property(property="message", type="string", example="Operation successful"),
  *     @OA\Property(property="statusCode", type="integer", example=200),
  *     @OA\Property(property="status", type="string", example="OK")
@@ -104,6 +111,7 @@ use OpenApi\Annotations as OA;
  * @OA\Schema(
  *     schema="ErrorResponse",
  *     type="object",
+ *
  *     @OA\Property(property="message", type="string", example="Error message"),
  *     @OA\Property(property="statusCode", type="integer", example=400),
  *     @OA\Property(property="status", type="string", example="Bad Request")

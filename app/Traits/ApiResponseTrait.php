@@ -29,7 +29,7 @@ trait ApiResponseTrait
             $response = array_merge($response, is_array($data) ? $data : ['data' => $data]);
         }
 
-        if (! empty($meta)) {
+        if ($meta !== []) {
             $response['meta'] = $meta;
         }
 

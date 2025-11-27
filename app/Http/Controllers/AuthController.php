@@ -148,7 +148,16 @@ class AuthController extends Controller implements HasMiddleware
      *         @OA\JsonContent(
      *
      *             @OA\Property(property="message", type="string", example="Login successful"),
-     *             @OA\Property(property="access_token", type="string")
+     *             @OA\Property(property="statusCode", type="integer", example=200),
+     *             @OA\Property(property="status", type="string", example="OK"),
+     *             @OA\Property(property="access_token", type="string", example="eyJ0eXAiOiJKV1QiLCJhbGc..."),
+     *             @OA\Property(property="token_type", type="string", example="bearer"),
+     *             @OA\Property(property="user", type="object",
+     *                 @OA\Property(property="id", type="integer", example=1),
+     *                 @OA\Property(property="name", type="string", example="John Doe"),
+     *                 @OA\Property(property="email", type="string", example="user@example.com")
+     *             ),
+     *             @OA\Property(property="expires_in", type="integer", example=86400)
      *         )
      *     ),
      *

@@ -346,8 +346,42 @@
                                             "type": "string",
                                             "example": "Login successful"
                                         },
+                                        "statusCode": {
+                                            "type": "integer",
+                                            "example": 200
+                                        },
+                                        "status": {
+                                            "type": "string",
+                                            "example": "OK"
+                                        },
                                         "access_token": {
-                                            "type": "string"
+                                            "type": "string",
+                                            "example": "eyJ0eXAiOiJKV1QiLCJhbGc..."
+                                        },
+                                        "token_type": {
+                                            "type": "string",
+                                            "example": "bearer"
+                                        },
+                                        "user": {
+                                            "properties": {
+                                                "id": {
+                                                    "type": "integer",
+                                                    "example": 1
+                                                },
+                                                "name": {
+                                                    "type": "string",
+                                                    "example": "John Doe"
+                                                },
+                                                "email": {
+                                                    "type": "string",
+                                                    "example": "user@example.com"
+                                                }
+                                            },
+                                            "type": "object"
+                                        },
+                                        "expires_in": {
+                                            "type": "integer",
+                                            "example": 86400
                                         }
                                     },
                                     "type": "object"
@@ -371,24 +405,29 @@
                 "tags": [
                     "Doctors"
                 ],
-                "summary": "Get available doctors",
+                "summary": "Get available doctors with time slots",
+                "description": "Returns list of doctors. When 'date' parameter is provided, includes available time slots for that specific date.",
                 "operationId": "aa6d7f43f74db6a1a6baf75494aec75f",
                 "parameters": [
                     {
                         "name": "specialization",
                         "in": "query",
+                        "description": "Filter doctors by specialization",
                         "required": false,
                         "schema": {
-                            "type": "string"
+                            "type": "string",
+                            "example": "Cardiology"
                         }
                     },
                     {
                         "name": "date",
                         "in": "query",
+                        "description": "Date to check availability (YYYY-MM-DD). When provided, response includes available_slots array.",
                         "required": false,
                         "schema": {
                             "type": "string",
-                            "format": "date"
+                            "format": "date",
+                            "example": "2025-11-28"
                         }
                     }
                 ],
@@ -407,7 +446,45 @@
                                                 "data": {
                                                     "type": "array",
                                                     "items": {
-                                                        "$ref": "#/components/schemas/Doctor"
+                                                        "properties": {
+                                                            "id": {
+                                                                "type": "integer",
+                                                                "example": 1
+                                                            },
+                                                            "name": {
+                                                                "type": "string",
+                                                                "example": "Dr. John Smith"
+                                                            },
+                                                            "specialization": {
+                                                                "type": "string",
+                                                                "example": "Cardiology"
+                                                            },
+                                                            "email": {
+                                                                "type": "string",
+                                                                "example": "john.smith@hospital.com"
+                                                            },
+                                                            "phone": {
+                                                                "type": "string",
+                                                                "example": "+1234567890"
+                                                            },
+                                                            "available_slots": {
+                                                                "description": "Available time slots (only included when date parameter is provided)",
+                                                                "type": "array",
+                                                                "items": {
+                                                                    "type": "string",
+                                                                    "example": "09:00"
+                                                                }
+                                                            },
+                                                            "created_at": {
+                                                                "type": "string",
+                                                                "format": "date-time"
+                                                            },
+                                                            "updated_at": {
+                                                                "type": "string",
+                                                                "format": "date-time"
+                                                            }
+                                                        },
+                                                        "type": "object"
                                                     }
                                                 }
                                             },
@@ -432,9 +509,22 @@
                     {
                         "name": "doctor",
                         "in": "path",
+                        "description": "Doctor ID",
                         "required": true,
                         "schema": {
-                            "type": "integer"
+                            "type": "integer",
+                            "example": 1
+                        }
+                    },
+                    {
+                        "name": "date",
+                        "in": "query",
+                        "description": "Date to check availability (YYYY-MM-DD). When provided, response includes available_slots array.",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "format": "date",
+                            "example": "2025-11-28"
                         }
                     }
                 ],
@@ -451,7 +541,45 @@
                                         {
                                             "properties": {
                                                 "data": {
-                                                    "$ref": "#/components/schemas/Doctor"
+                                                    "properties": {
+                                                        "id": {
+                                                            "type": "integer",
+                                                            "example": 1
+                                                        },
+                                                        "name": {
+                                                            "type": "string",
+                                                            "example": "Dr. John Smith"
+                                                        },
+                                                        "specialization": {
+                                                            "type": "string",
+                                                            "example": "Cardiology"
+                                                        },
+                                                        "email": {
+                                                            "type": "string",
+                                                            "example": "john.smith@hospital.com"
+                                                        },
+                                                        "phone": {
+                                                            "type": "string",
+                                                            "example": "+1234567890"
+                                                        },
+                                                        "available_slots": {
+                                                            "description": "Available time slots (only included when date parameter is provided)",
+                                                            "type": "array",
+                                                            "items": {
+                                                                "type": "string",
+                                                                "example": "09:00"
+                                                            }
+                                                        },
+                                                        "created_at": {
+                                                            "type": "string",
+                                                            "format": "date-time"
+                                                        },
+                                                        "updated_at": {
+                                                            "type": "string",
+                                                            "format": "date-time"
+                                                        }
+                                                    },
+                                                    "type": "object"
                                                 }
                                             },
                                             "type": "object"
