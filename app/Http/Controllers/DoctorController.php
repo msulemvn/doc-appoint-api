@@ -88,7 +88,7 @@ class DoctorController extends Controller
             });
         }
 
-        $doctors = $query->get();
+        $doctors = $query->with('user')->get();
 
         return $this->success(DoctorResource::collection($doctors), 'Available doctors retrieved successfully');
     }
@@ -130,7 +130,6 @@ class DoctorController extends Controller
      *                     @OA\Property(
      *                         property="data",
      *                         type="object",
-     *
      *                         @OA\Property(property="id", type="integer", example=1),
      *                         @OA\Property(property="name", type="string", example="Dr. John Smith"),
      *                         @OA\Property(property="specialization", type="string", example="Cardiology"),
@@ -164,6 +163,8 @@ class DoctorController extends Controller
      */
     public function show(Doctor $doctor)
     {
+        $doctor->load('user');
+
         return $this->success(new DoctorResource($doctor), 'Doctor retrieved successfully');
     }
 

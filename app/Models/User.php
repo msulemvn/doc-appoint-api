@@ -3,6 +3,7 @@
 namespace App\Models;
 
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
+use App\Enums\UserRole;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Foundation\Auth\User as Authenticatable;
@@ -13,6 +14,7 @@ class User extends Authenticatable implements JWTSubject
 {
     use HasFactory;
     use Notifiable;
+
     /**
      * The attributes that are mass assignable.
      *
@@ -22,6 +24,7 @@ class User extends Authenticatable implements JWTSubject
         'name',
         'email',
         'password',
+        'role',
     ];
 
     /**
@@ -35,6 +38,22 @@ class User extends Authenticatable implements JWTSubject
     ];
 
     /**
+     * Get the array representation of the model.
+     *
+     * Converts role enum to string label for API responses.
+     */
+    public function toArray(): array
+    {
+        $array = parent::toArray();
+
+        if (isset($array['role']) && $this->role instanceof UserRole) {
+            $array['role'] = $this->role->label();
+        }
+
+        return $array;
+    }
+
+    /**
      * Get the attributes that should be cast.
      *
      * @return array<string, string>
@@ -44,6 +63,7 @@ class User extends Authenticatable implements JWTSubject
         return [
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
+            'role' => UserRole::class,
         ];
     }
 
@@ -60,5 +80,20 @@ class User extends Authenticatable implements JWTSubject
     public function patient(): HasOne
     {
         return $this->hasOne(Patient::class);
+    }
+
+    public function doctor(): HasOne
+    {
+        return $this->hasOne(Doctor::class);
+    }
+
+    public function isDoctor(): bool
+    {
+        return $this->role === UserRole::DOCTOR;
+    }
+
+    public function isPatient(): bool
+    {
+        return $this->role === UserRole::PATIENT;
     }
 }

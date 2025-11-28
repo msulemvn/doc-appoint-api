@@ -2,7 +2,9 @@
 
 namespace Database\Seeders;
 
+use App\Enums\UserRole;
 use App\Models\Doctor;
+use App\Models\User;
 use Illuminate\Database\Seeder;
 
 class DoctorSeeder extends Seeder
@@ -72,8 +74,19 @@ class DoctorSeeder extends Seeder
             ],
         ];
 
-        foreach ($doctors as $doctor) {
-            Doctor::create($doctor);
+        foreach ($doctors as $doctorData) {
+            $user = User::create([
+                'name' => $doctorData['name'],
+                'email' => $doctorData['email'],
+                'password' => 'password',
+                'role' => UserRole::DOCTOR,
+            ]);
+
+            Doctor::create([
+                'user_id' => $user->id,
+                'specialization' => $doctorData['specialization'],
+                'phone' => $doctorData['phone'],
+            ]);
         }
     }
 }

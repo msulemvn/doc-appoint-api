@@ -14,6 +14,10 @@ class AppointmentResource extends JsonResource
      */
     public function toArray(Request $request): array
     {
+        $user = auth('api')->user();
+        $isPatient = $user && $user->isPatient();
+        $isDoctor = $user && $user->isDoctor();
+
         return [
             'id' => $this->id,
             'appointment_date' => $this->appointment_date,
@@ -23,24 +27,23 @@ class AppointmentResource extends JsonResource
                 $this->wasRecentlyCreated === false && $this->wasChanged('status'),
                 $this->updated_at
             ),
-            'patient' => $this->whenLoaded('patient', function () {
-                return [
-                    'id' => $this->patient->id,
-                    'name' => $this->patient->name,
-                    'email' => $this->patient->email,
+            'patient' => $this->when(
+                $isDoctor && $this->relationLoaded('patient'),
+                fn () => [
+                    'name' => $this->patient->user->name,
+                    'email' => $this->patient->user->email,
                     'phone' => $this->patient->phone,
                     'date_of_birth' => $this->patient->date_of_birth?->format('Y-m-d'),
-                ];
-            }),
-            'doctor' => $this->whenLoaded('doctor', function () {
-                return [
-                    'id' => $this->doctor->id,
-                    'name' => $this->doctor->name,
+                ]
+            ),
+            'doctor' => $this->when(
+                $isPatient && $this->relationLoaded('doctor'),
+                fn () => [
+                    'name' => $this->doctor->user->name,
                     'specialization' => $this->doctor->specialization,
-                    'email' => $this->doctor->email,
                     'phone' => $this->doctor->phone,
-                ];
-            }),
+                ]
+            ),
         ];
     }
 }

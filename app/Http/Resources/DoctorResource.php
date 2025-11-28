@@ -18,13 +18,12 @@ class DoctorResource extends JsonResource
     {
         return [
             'id' => $this->id,
-            'name' => $this->name,
+            'name' => $this->user->name,
             'specialization' => $this->specialization,
-            'email' => $this->email,
             'phone' => $this->phone,
             'available_slots' => $this->when(
                 $request->has('date'),
-                fn() => $this->getAvailableSlots($request->date)
+                fn () => $this->getAvailableSlots($request->date)
             ),
         ];
     }
@@ -37,7 +36,7 @@ class DoctorResource extends JsonResource
         // Define working hours (9 AM to 5 PM with 1-hour slots)
         $workingHours = [
             '09:00', '10:00', '11:00', '12:00',
-            '13:00', '14:00', '15:00', '16:00', '17:00'
+            '13:00', '14:00', '15:00', '16:00', '17:00',
         ];
 
         // Get booked appointments for this date
@@ -45,12 +44,10 @@ class DoctorResource extends JsonResource
             ->whereDate('appointment_date', $date)
             ->whereIn('status', [
                 AppointmentStatus::PENDING->value,
-                AppointmentStatus::CONFIRMED->value
+                AppointmentStatus::CONFIRMED->value,
             ])
             ->get()
-            ->map(function ($appointment) {
-                return Carbon::parse($appointment->appointment_date)->format('H:i');
-            })
+            ->map(fn ($appointment) => Carbon::parse($appointment->appointment_date)->format('H:i'))
             ->toArray();
 
         // Return available slots (those not booked)

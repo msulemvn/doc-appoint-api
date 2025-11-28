@@ -83,6 +83,14 @@
                                                 "email": {
                                                     "type": "string",
                                                     "example": "user@example.com"
+                                                },
+                                                "role": {
+                                                    "type": "string",
+                                                    "enum": [
+                                                        "patient",
+                                                        "doctor"
+                                                    ],
+                                                    "example": "patient"
                                                 }
                                             },
                                             "type": "object"
@@ -486,13 +494,13 @@
                     }
                 ]
             },
-            "post": {
+            "put": {
                 "tags": [
                     "Authentication"
                 ],
                 "summary": "Update authenticated user profile",
                 "description": "Update the currently authenticated user's profile information",
-                "operationId": "4bb8c06f3b14bbbd339ea3d9a0b03223",
+                "operationId": "ac662ae856fb1cc2239e27417f0496bd",
                 "requestBody": {
                     "required": true,
                     "content": {
@@ -814,6 +822,14 @@
                                                 "email": {
                                                     "type": "string",
                                                     "example": "user@example.com"
+                                                },
+                                                "role": {
+                                                    "type": "string",
+                                                    "enum": [
+                                                        "patient",
+                                                        "doctor"
+                                                    ],
+                                                    "example": "patient"
                                                 }
                                             },
                                             "type": "object"
@@ -1187,12 +1203,14 @@
                 "tags": [
                     "Appointments"
                 ],
-                "summary": "Get all appointments for authenticated patient",
+                "summary": "Get all appointments for authenticated user (role-based view)",
+                "description": "Returns appointments based on user role. Patients see their booked appointments with doctor details. Doctors see their scheduled appointments with patient details.",
                 "operationId": "ef6951251fc9d126b08ed113c8a7a017",
                 "parameters": [
                     {
                         "name": "status",
                         "in": "query",
+                        "description": "Filter appointments by status",
                         "required": false,
                         "schema": {
                             "type": "string",
@@ -1207,7 +1225,7 @@
                 ],
                 "responses": {
                     "200": {
-                        "description": "Appointments retrieved successfully",
+                        "description": "Appointments retrieved successfully. Response structure varies by role: patients see doctor info, doctors see patient info.",
                         "content": {
                             "application/json": {
                                 "schema": {
@@ -1225,6 +1243,7 @@
                                             "example": "OK"
                                         },
                                         "data": {
+                                            "description": "Array of appointments. Each appointment shows either doctor (for patients) or patient (for doctors), never both.",
                                             "type": "array",
                                             "items": {
                                                 "properties": {
@@ -1246,11 +1265,8 @@
                                                         "example": "Follow-up consultation"
                                                     },
                                                     "doctor": {
+                                                        "description": "Only present for patient users",
                                                         "properties": {
-                                                            "id": {
-                                                                "type": "integer",
-                                                                "example": 1
-                                                            },
                                                             "name": {
                                                                 "type": "string",
                                                                 "example": "Dr. John Smith"
@@ -1259,13 +1275,32 @@
                                                                 "type": "string",
                                                                 "example": "Cardiology"
                                                             },
+                                                            "phone": {
+                                                                "type": "string",
+                                                                "example": "+1234567890"
+                                                            }
+                                                        },
+                                                        "type": "object"
+                                                    },
+                                                    "patient": {
+                                                        "description": "Only present for doctor users",
+                                                        "properties": {
+                                                            "name": {
+                                                                "type": "string",
+                                                                "example": "Jane Doe"
+                                                            },
                                                             "email": {
                                                                 "type": "string",
-                                                                "example": "doctor@example.com"
+                                                                "example": "jane@example.com"
                                                             },
                                                             "phone": {
                                                                 "type": "string",
                                                                 "example": "+1234567890"
+                                                            },
+                                                            "date_of_birth": {
+                                                                "type": "string",
+                                                                "format": "date",
+                                                                "example": "1990-01-15"
                                                             }
                                                         },
                                                         "type": "object"
@@ -1297,6 +1332,30 @@
                                         "status": {
                                             "type": "string",
                                             "example": "Unauthorized"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Profile not found",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Patient profile not found"
+                                        },
+                                        "statusCode": {
+                                            "type": "integer",
+                                            "example": 404
+                                        },
+                                        "status": {
+                                            "type": "string",
+                                            "example": "Not Found"
                                         }
                                     },
                                     "type": "object"
@@ -1980,12 +2039,45 @@
     },
     "components": {
         "schemas": {
+            "User": {
+                "required": [
+                    "id",
+                    "name",
+                    "email",
+                    "role"
+                ],
+                "properties": {
+                    "id": {
+                        "type": "integer",
+                        "example": 1
+                    },
+                    "name": {
+                        "type": "string",
+                        "example": "John Doe"
+                    },
+                    "email": {
+                        "type": "string",
+                        "format": "email",
+                        "example": "user@example.com"
+                    },
+                    "role": {
+                        "description": "User role",
+                        "type": "string",
+                        "enum": [
+                            "patient",
+                            "doctor"
+                        ],
+                        "example": "patient"
+                    }
+                },
+                "type": "object"
+            },
             "Doctor": {
                 "required": [
                     "id",
                     "name",
                     "specialization",
-                    "email"
+                    "phone"
                 ],
                 "properties": {
                     "id": {
@@ -2000,11 +2092,6 @@
                         "type": "string",
                         "example": "Cardiology"
                     },
-                    "email": {
-                        "type": "string",
-                        "format": "email",
-                        "example": "doctor@example.com"
-                    },
                     "phone": {
                         "type": "string",
                         "example": "+1234567890"
@@ -2014,15 +2101,11 @@
             },
             "Patient": {
                 "required": [
-                    "id",
                     "name",
-                    "email"
+                    "email",
+                    "phone"
                 ],
                 "properties": {
-                    "id": {
-                        "type": "integer",
-                        "example": 1
-                    },
                     "name": {
                         "type": "string",
                         "example": "Jane Doe"
@@ -2030,7 +2113,7 @@
                     "email": {
                         "type": "string",
                         "format": "email",
-                        "example": "patient@example.com"
+                        "example": "jane@example.com"
                     },
                     "phone": {
                         "type": "string",

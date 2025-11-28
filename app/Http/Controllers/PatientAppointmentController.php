@@ -7,7 +7,6 @@ use App\Http\Requests\StoreAppointmentRequest;
 use App\Http\Requests\UpdateAppointmentStatusRequest;
 use App\Http\Resources\AppointmentResource;
 use App\Models\Appointment;
-use App\Models\Patient;
 use Illuminate\Http\Request;
 use OpenApi\Annotations as OA;
 use Symfony\Component\HttpFoundation\Response;
@@ -18,20 +17,22 @@ class PatientAppointmentController extends Controller
      * @OA\Get(
      *     path="/api/appointments",
      *     tags={"Appointments"},
-     *     summary="Get all appointments for authenticated patient",
+     *     summary="Get all appointments for authenticated user (role-based view)",
+     *     description="Returns appointments based on user role. Patients see their booked appointments with doctor details. Doctors see their scheduled appointments with patient details.",
      *     security={{"bearerAuth":{}}},
      *
      *     @OA\Parameter(
      *         name="status",
      *         in="query",
      *         required=false,
+     *         description="Filter appointments by status",
      *
      *         @OA\Schema(type="string", enum={"pending", "confirmed", "cancelled", "completed"})
      *     ),
      *
      *     @OA\Response(
      *         response=200,
-     *         description="Appointments retrieved successfully",
+     *         description="Appointments retrieved successfully. Response structure varies by role: patients see doctor info, doctors see patient info.",
      *
      *         @OA\JsonContent(
      *
@@ -41,6 +42,7 @@ class PatientAppointmentController extends Controller
      *             @OA\Property(
      *                 property="data",
      *                 type="array",
+     *                 description="Array of appointments. Each appointment shows either doctor (for patients) or patient (for doctors), never both.",
      *
      *                 @OA\Items(
      *                     type="object",
@@ -52,12 +54,19 @@ class PatientAppointmentController extends Controller
      *                     @OA\Property(
      *                         property="doctor",
      *                         type="object",
-     *
-     *                         @OA\Property(property="id", type="integer", example=1),
+     *                         description="Only present for patient users",
      *                         @OA\Property(property="name", type="string", example="Dr. John Smith"),
      *                         @OA\Property(property="specialization", type="string", example="Cardiology"),
-     *                         @OA\Property(property="email", type="string", example="doctor@example.com"),
      *                         @OA\Property(property="phone", type="string", example="+1234567890")
+     *                     ),
+     *                     @OA\Property(
+     *                         property="patient",
+     *                         type="object",
+     *                         description="Only present for doctor users",
+     *                         @OA\Property(property="name", type="string", example="Jane Doe"),
+     *                         @OA\Property(property="email", type="string", example="jane@example.com"),
+     *                         @OA\Property(property="phone", type="string", example="+1234567890"),
+     *                         @OA\Property(property="date_of_birth", type="string", format="date", example="1990-01-15")
      *                     )
      *                 )
      *             )
@@ -74,26 +83,62 @@ class PatientAppointmentController extends Controller
      *             @OA\Property(property="statusCode", type="integer", example=401),
      *             @OA\Property(property="status", type="string", example="Unauthorized")
      *         )
+     *     ),
+     *
+     *     @OA\Response(
+     *         response=404,
+     *         description="Profile not found",
+     *
+     *         @OA\JsonContent(
+     *
+     *             @OA\Property(property="message", type="string", example="Patient profile not found"),
+     *             @OA\Property(property="statusCode", type="integer", example=404),
+     *             @OA\Property(property="status", type="string", example="Not Found")
+     *         )
      *     )
      * )
      */
     public function index(Request $request)
     {
-        $patient = auth('api')->user()->patient;
+        $user = auth('api')->user();
 
-        if (!$patient) {
-            return $this->error('Patient profile not found', null, Response::HTTP_NOT_FOUND);
+        if ($user->isPatient()) {
+            $patient = $user->patient;
+
+            if (! $patient) {
+                return $this->error('Patient profile not found', null, Response::HTTP_NOT_FOUND);
+            }
+
+            $query = $patient->appointments()->with(['doctor.user']);
+
+            if ($request->has('status')) {
+                $query->where('status', AppointmentStatus::fromLabel($request->status)->value);
+            }
+
+            $appointments = $query->get();
+
+            return $this->success(AppointmentResource::collection($appointments), 'Appointments retrieved successfully');
         }
 
-        $query = $patient->appointments()->with(['doctor']);
+        if ($user->isDoctor()) {
+            $doctor = $user->doctor;
 
-        if ($request->has('status')) {
-            $query->where('status', AppointmentStatus::fromLabel($request->status)->value);
+            if (! $doctor) {
+                return $this->error('Doctor profile not found', null, Response::HTTP_NOT_FOUND);
+            }
+
+            $query = $doctor->appointments()->with(['patient.user']);
+
+            if ($request->has('status')) {
+                $query->where('status', AppointmentStatus::fromLabel($request->status)->value);
+            }
+
+            $appointments = $query->get();
+
+            return $this->success(AppointmentResource::collection($appointments), 'Appointments retrieved successfully');
         }
 
-        $appointments = $query->get();
-
-        return $this->success(AppointmentResource::collection($appointments), 'Appointments retrieved successfully');
+        return $this->error('Invalid user role', null, Response::HTTP_FORBIDDEN);
     }
 
     /**
@@ -123,7 +168,6 @@ class PatientAppointmentController extends Controller
      *             @OA\Property(
      *                 property="data",
      *                 type="object",
-     *
      *                 @OA\Property(property="id", type="integer", example=1),
      *                 @OA\Property(property="appointment_date", type="string", format="date-time", example="2025-12-01 10:00:00"),
      *                 @OA\Property(property="status", type="string", example="pending"),
@@ -131,7 +175,6 @@ class PatientAppointmentController extends Controller
      *                 @OA\Property(
      *                     property="doctor",
      *                     type="object",
-     *
      *                     @OA\Property(property="id", type="integer", example=1),
      *                     @OA\Property(property="name", type="string", example="Dr. John Smith"),
      *                     @OA\Property(property="specialization", type="string", example="Cardiology"),
@@ -141,7 +184,6 @@ class PatientAppointmentController extends Controller
      *                 @OA\Property(
      *                     property="patient",
      *                     type="object",
-     *
      *                     @OA\Property(property="id", type="integer", example=1),
      *                     @OA\Property(property="name", type="string", example="Jane Doe"),
      *                     @OA\Property(property="email", type="string", example="jane@example.com"),
@@ -181,7 +223,7 @@ class PatientAppointmentController extends Controller
     {
         $patient = auth('api')->user()->patient;
 
-        if (!$patient || $appointment->patient_id !== $patient->id) {
+        if (! $patient || $appointment->patient_id !== $patient->id) {
             return $this->error('Appointment not found', null, Response::HTTP_NOT_FOUND);
         }
 
@@ -221,7 +263,6 @@ class PatientAppointmentController extends Controller
      *             @OA\Property(
      *                 property="data",
      *                 type="object",
-     *
      *                 @OA\Property(property="id", type="integer", example=1),
      *                 @OA\Property(property="appointment_date", type="string", format="date-time", example="2025-12-01 10:00:00"),
      *                 @OA\Property(property="status", type="string", example="pending"),
@@ -229,7 +270,6 @@ class PatientAppointmentController extends Controller
      *                 @OA\Property(
      *                     property="doctor",
      *                     type="object",
-     *
      *                     @OA\Property(property="id", type="integer", example=1),
      *                     @OA\Property(property="name", type="string", example="Dr. John Smith"),
      *                     @OA\Property(property="specialization", type="string", example="Cardiology"),
@@ -269,7 +309,7 @@ class PatientAppointmentController extends Controller
     {
         $patient = auth('api')->user()->patient;
 
-        if (!$patient) {
+        if (! $patient) {
             return $this->error('Patient profile not found', null, Response::HTTP_NOT_FOUND);
         }
 
@@ -331,7 +371,6 @@ class PatientAppointmentController extends Controller
      *             @OA\Property(
      *                 property="data",
      *                 type="object",
-     *
      *                 @OA\Property(property="id", type="integer", example=1),
      *                 @OA\Property(property="appointment_date", type="string", format="date-time", example="2025-12-01 10:00:00"),
      *                 @OA\Property(property="status", type="string", example="confirmed"),
@@ -340,7 +379,6 @@ class PatientAppointmentController extends Controller
      *                 @OA\Property(
      *                     property="doctor",
      *                     type="object",
-     *
      *                     @OA\Property(property="id", type="integer", example=1),
      *                     @OA\Property(property="name", type="string", example="Dr. John Smith"),
      *                     @OA\Property(property="specialization", type="string", example="Cardiology"),
@@ -350,7 +388,6 @@ class PatientAppointmentController extends Controller
      *                 @OA\Property(
      *                     property="patient",
      *                     type="object",
-     *
      *                     @OA\Property(property="id", type="integer", example=1),
      *                     @OA\Property(property="name", type="string", example="Jane Doe"),
      *                     @OA\Property(property="email", type="string", example="jane@example.com"),
@@ -397,7 +434,6 @@ class PatientAppointmentController extends Controller
      *             @OA\Property(
      *                 property="errors",
      *                 type="object",
-     *
      *                 @OA\Property(
      *                     property="status",
      *                     type="array",
@@ -474,7 +510,7 @@ class PatientAppointmentController extends Controller
     {
         $patient = auth('api')->user()->patient;
 
-        if (!$patient || $appointment->patient_id !== $patient->id) {
+        if (! $patient || $appointment->patient_id !== $patient->id) {
             return $this->error('Appointment not found', null, Response::HTTP_NOT_FOUND);
         }
 

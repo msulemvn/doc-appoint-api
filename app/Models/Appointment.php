@@ -24,7 +24,7 @@ class Appointment extends Model
         'status' => AppointmentStatus::class,
     ];
 
-    protected $with = ['patient', 'doctor'];
+    protected $with = ['patient.user', 'doctor.user'];
 
     public function patient(): BelongsTo
     {

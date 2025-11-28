@@ -28,7 +28,7 @@ enum AppointmentStatus: int
             'confirmed' => self::CONFIRMED,
             'cancelled' => self::CANCELLED,
             'completed' => self::COMPLETED,
-            default => throw new ValueError('Invalid status label: ' . $label),
+            default => throw new ValueError('Invalid status label: '.$label),
         };
     }
 }

@@ -15,9 +15,16 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
-        User::factory()->create([
+        $testUser = User::factory()->create([
             'name' => 'Test User',
             'email' => 'test@example.com',
+            'role' => \App\Enums\UserRole::PATIENT,
+        ]);
+
+        \App\Models\Patient::create([
+            'user_id' => $testUser->id,
+            'phone' => '+1234567890',
+            'date_of_birth' => '1990-01-01',
         ]);
 
         $this->call([

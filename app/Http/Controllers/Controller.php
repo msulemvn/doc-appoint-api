@@ -23,25 +23,34 @@ use OpenApi\Annotations as OA;
  * )
  *
  * @OA\Schema(
+ *     schema="User",
+ *     type="object",
+ *     required={"id", "name", "email", "role"},
+ *
+ *     @OA\Property(property="id", type="integer", example=1),
+ *     @OA\Property(property="name", type="string", example="John Doe"),
+ *     @OA\Property(property="email", type="string", format="email", example="user@example.com"),
+ *     @OA\Property(property="role", type="string", enum={"patient", "doctor"}, example="patient", description="User role")
+ * )
+ *
+ * @OA\Schema(
  *     schema="Doctor",
  *     type="object",
- *     required={"id", "name", "specialization", "email"},
+ *     required={"id", "name", "specialization", "phone"},
  *
  *     @OA\Property(property="id", type="integer", example=1),
  *     @OA\Property(property="name", type="string", example="Dr. John Smith"),
  *     @OA\Property(property="specialization", type="string", example="Cardiology"),
- *     @OA\Property(property="email", type="string", format="email", example="doctor@example.com"),
  *     @OA\Property(property="phone", type="string", example="+1234567890")
  * )
  *
  * @OA\Schema(
  *     schema="Patient",
  *     type="object",
- *     required={"id", "name", "email"},
+ *     required={"name", "email", "phone"},
  *
- *     @OA\Property(property="id", type="integer", example=1),
  *     @OA\Property(property="name", type="string", example="Jane Doe"),
- *     @OA\Property(property="email", type="string", format="email", example="patient@example.com"),
+ *     @OA\Property(property="email", type="string", format="email", example="jane@example.com"),
  *     @OA\Property(property="phone", type="string", example="+1234567890"),
  *     @OA\Property(property="date_of_birth", type="string", format="date", example="1990-01-15")
  * )

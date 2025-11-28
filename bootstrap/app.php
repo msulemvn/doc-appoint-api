@@ -20,8 +20,15 @@ return Application::configure(basePath: dirname(__DIR__))
             if ($request->is('api/*')) {
                 throw new AuthenticationException('Unauthenticated.');
             }
+
             return route('login');
         });
+
+        $middleware->alias([
+            'role' => \App\Http\Middleware\CheckRole::class,
+            'doctor' => \App\Http\Middleware\IsDoctor::class,
+            'patient' => \App\Http\Middleware\IsPatient::class,
+        ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         $exceptions->render(function (AuthenticationException $exception, $request) {

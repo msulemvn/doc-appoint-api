@@ -2,10 +2,13 @@
 
 namespace App\Http\Controllers;
 
+use App\Enums\UserRole;
 use App\Http\Requests\RegisterPatientRequest;
 use App\Http\Requests\UpdateProfileRequest;
+use App\Http\Resources\UserResource;
 use App\Models\Patient;
 use App\Models\User;
+use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controllers\HasMiddleware;
 use Illuminate\Routing\Controllers\Middleware;
@@ -53,7 +56,8 @@ class AuthController extends Controller implements HasMiddleware
      *             @OA\Property(property="user", type="object",
      *                 @OA\Property(property="id", type="integer", example=1),
      *                 @OA\Property(property="name", type="string", example="John Doe"),
-     *                 @OA\Property(property="email", type="string", example="user@example.com")
+     *                 @OA\Property(property="email", type="string", example="user@example.com"),
+     *                 @OA\Property(property="role", type="string", enum={"patient", "doctor"}, example="patient")
      *             ),
      *             @OA\Property(property="expires_in", type="integer", example=86400)
      *         )
@@ -84,13 +88,13 @@ class AuthController extends Controller implements HasMiddleware
      *             @OA\Property(
      *                 property="errors",
      *                 type="object",
-     *
      *                 @OA\Property(
      *                     property="email",
      *                     type="array",
      *
      *                     @OA\Items(type="string", example="The email field is required.")
      *                 ),
+     *
      *                 @OA\Property(
      *                     property="password",
      *                     type="array",
@@ -154,14 +158,12 @@ class AuthController extends Controller implements HasMiddleware
      *             @OA\Property(
      *                 property="user",
      *                 type="object",
-     *
      *                 @OA\Property(property="id", type="integer", example=1),
      *                 @OA\Property(property="name", type="string", example="John Doe"),
      *                 @OA\Property(property="email", type="string", example="john.doe@example.com"),
      *                 @OA\Property(
      *                     property="patient",
      *                     type="object",
-     *
      *                     @OA\Property(property="id", type="integer", example=1),
      *                     @OA\Property(property="name", type="string", example="John Doe"),
      *                     @OA\Property(property="email", type="string", example="john.doe@example.com"),
@@ -185,13 +187,13 @@ class AuthController extends Controller implements HasMiddleware
      *             @OA\Property(
      *                 property="errors",
      *                 type="object",
-     *
      *                 @OA\Property(
      *                     property="email",
      *                     type="array",
      *
      *                     @OA\Items(type="string", example="The email has already been taken.")
      *                 ),
+     *
      *                 @OA\Property(
      *                     property="password",
      *                     type="array",
@@ -225,12 +227,11 @@ class AuthController extends Controller implements HasMiddleware
                 'name' => $request->name,
                 'email' => $request->email,
                 'password' => $request->password,
+                'role' => UserRole::PATIENT,
             ]);
 
             $patient = Patient::create([
                 'user_id' => $user->id,
-                'name' => $request->name,
-                'email' => $request->email,
                 'phone' => $request->phone,
                 'date_of_birth' => $request->date_of_birth,
             ]);
@@ -242,10 +243,10 @@ class AuthController extends Controller implements HasMiddleware
             return $this->success([
                 'access_token' => $token,
                 'token_type' => 'bearer',
-                'user' => $user->load('patient'),
+                'user' => new UserResource($user->load('patient')),
                 'expires_in' => auth('api')->factory()->getTTL() * 60,
             ], 'Registration successful', 201);
-        } catch (\Exception $e) {
+        } catch (Exception) {
             DB::rollBack();
 
             return $this->error('Registration failed', null, 500);
@@ -272,14 +273,12 @@ class AuthController extends Controller implements HasMiddleware
      *             @OA\Property(
      *                 property="user",
      *                 type="object",
-     *
      *                 @OA\Property(property="id", type="integer", example=1),
      *                 @OA\Property(property="name", type="string", example="John Doe"),
      *                 @OA\Property(property="email", type="string", example="john.doe@example.com"),
      *                 @OA\Property(
      *                     property="patient",
      *                     type="object",
-     *
      *                     @OA\Property(property="id", type="integer", example=1),
      *                     @OA\Property(property="name", type="string", example="John Doe"),
      *                     @OA\Property(property="email", type="string", example="john.doe@example.com"),
@@ -307,11 +306,11 @@ class AuthController extends Controller implements HasMiddleware
     {
         $user = auth('api')->user()->load('patient');
 
-        return $this->success(['user' => $user], 'Profile retrieved successfully');
+        return $this->success(['user' => new UserResource($user)], 'Profile retrieved successfully');
     }
 
     /**
-     * @OA\Post(
+     * @OA\Put(
      *     path="/api/profile",
      *     tags={"Authentication"},
      *     summary="Update authenticated user profile",
@@ -344,14 +343,12 @@ class AuthController extends Controller implements HasMiddleware
      *             @OA\Property(
      *                 property="user",
      *                 type="object",
-     *
      *                 @OA\Property(property="id", type="integer", example=1),
      *                 @OA\Property(property="name", type="string", example="John Doe Updated"),
      *                 @OA\Property(property="email", type="string", example="john.updated@example.com"),
      *                 @OA\Property(
      *                     property="patient",
      *                     type="object",
-     *
      *                     @OA\Property(property="id", type="integer", example=1),
      *                     @OA\Property(property="name", type="string", example="John Doe Updated"),
      *                     @OA\Property(property="email", type="string", example="john.updated@example.com"),
@@ -386,7 +383,6 @@ class AuthController extends Controller implements HasMiddleware
      *             @OA\Property(
      *                 property="errors",
      *                 type="object",
-     *
      *                 @OA\Property(
      *                     property="email",
      *                     type="array",
@@ -423,39 +419,36 @@ class AuthController extends Controller implements HasMiddleware
             if ($request->has('name')) {
                 $userData['name'] = $request->name;
             }
+
             if ($request->has('email')) {
                 $userData['email'] = $request->email;
             }
+
             if ($request->has('password')) {
                 $userData['password'] = $request->password;
             }
 
-            if (!empty($userData)) {
+            if ($userData !== []) {
                 $user->update($userData);
             }
 
             $patientData = [];
-            if ($request->has('name')) {
-                $patientData['name'] = $request->name;
-            }
-            if ($request->has('email')) {
-                $patientData['email'] = $request->email;
-            }
             if ($request->has('phone')) {
                 $patientData['phone'] = $request->phone;
             }
+
             if ($request->has('date_of_birth')) {
                 $patientData['date_of_birth'] = $request->date_of_birth;
             }
 
-            if (!empty($patientData) && $patient) {
+            if ($patientData !== [] && $patient) {
                 $patient->update($patientData);
             }
 
             DB::commit();
 
-            return $this->success(['user' => $user->fresh()->load('patient')], 'Profile updated successfully');
-        } catch (\Exception $e) {
+            return $this->success(['user' => new UserResource($user->fresh()->load('patient'))], 'Profile updated successfully');
+        } catch (Exception) {
             DB::rollBack();
 
             return $this->error('Profile update failed', null, 500);
@@ -525,7 +518,8 @@ class AuthController extends Controller implements HasMiddleware
      *             @OA\Property(property="user", type="object",
      *                 @OA\Property(property="id", type="integer", example=1),
      *                 @OA\Property(property="name", type="string", example="John Doe"),
-     *                 @OA\Property(property="email", type="string", example="user@example.com")
+     *                 @OA\Property(property="email", type="string", example="user@example.com"),
+     *                 @OA\Property(property="role", type="string", enum={"patient", "doctor"}, example="patient")
      *             ),
      *             @OA\Property(property="expires_in", type="integer", example=86400)
      *         )
@@ -554,7 +548,7 @@ class AuthController extends Controller implements HasMiddleware
         return $this->success([
             'access_token' => $token,
             'token_type' => 'bearer',
-            'user' => auth('api')->user(),
+            'user' => new UserResource(auth('api')->user()),
             'expires_in' => auth('api')->factory()->getTTL() * 60,
         ], 'Login successful');
     }
