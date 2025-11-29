@@ -3,13 +3,13 @@
 namespace App\Http\Controllers;
 
 use App\Enums\UserRole;
+use App\Http\Requests\LoginRequest;
 use App\Http\Requests\RegisterPatientRequest;
 use App\Http\Requests\UpdateProfileRequest;
 use App\Http\Resources\UserResource;
 use App\Models\Patient;
 use App\Models\User;
 use Exception;
-use Illuminate\Http\Request;
 use Illuminate\Routing\Controllers\HasMiddleware;
 use Illuminate\Routing\Controllers\Middleware;
 use Illuminate\Support\Facades\DB;
@@ -106,13 +106,8 @@ class AuthController extends Controller implements HasMiddleware
      *     )
      * )
      */
-    public function login(Request $request)
+    public function login(LoginRequest $request)
     {
-        $request->validate([
-            'email' => 'required|string',
-            'password' => 'required|string',
-        ]);
-
         $credentials = $request->only(['email', 'password']);
 
         if (! $token = auth('api')->attempt($credentials)) {
@@ -413,35 +408,17 @@ class AuthController extends Controller implements HasMiddleware
             DB::beginTransaction();
 
             $user = auth('api')->user();
-            $this->authorize('update', $user);
-
             $patient = $user->patient;
 
-            $userData = [];
-            if ($request->has('name')) {
-                $userData['name'] = $request->name;
-            }
-
-            if ($request->has('email')) {
-                $userData['email'] = $request->email;
-            }
-
-            if ($request->has('password')) {
-                $userData['password'] = $request->password;
-            }
+            $userData = $request->only(['name', 'email', 'password']);
+            $userData = array_filter($userData);
 
             if ($userData !== []) {
                 $user->update($userData);
             }
 
-            $patientData = [];
-            if ($request->has('phone')) {
-                $patientData['phone'] = $request->phone;
-            }
-
-            if ($request->has('date_of_birth')) {
-                $patientData['date_of_birth'] = $request->date_of_birth;
-            }
+            $patientData = $request->only(['phone', 'date_of_birth']);
+            $patientData = array_filter($patientData);
 
             if ($patientData !== [] && $patient) {
                 $patient->update($patientData);

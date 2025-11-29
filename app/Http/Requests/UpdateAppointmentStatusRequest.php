@@ -9,12 +9,12 @@ class UpdateAppointmentStatusRequest extends FormRequest
 {
     public function authorize(): bool
     {
-        return true;
+        return $this->user()->can('update', $this->route('appointment'));
     }
 
     public function rules(): array
     {
-        $user = auth('api')->user();
+        $user = $this->user();
 
         if ($user->isPatient()) {
             return [

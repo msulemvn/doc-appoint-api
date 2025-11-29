@@ -3,9 +3,9 @@
 namespace App\Http\Controllers;
 
 use App\Enums\AppointmentStatus;
+use App\Http\Requests\GetAvailableDoctorsRequest;
 use App\Http\Resources\DoctorResource;
 use App\Models\Doctor;
-use Illuminate\Http\Request;
 use OpenApi\Annotations as OA;
 
 class DoctorController extends Controller
@@ -72,7 +72,7 @@ class DoctorController extends Controller
      *     )
      * )
      */
-    public function available(Request $request)
+    public function available(GetAvailableDoctorsRequest $request)
     {
         $query = Doctor::query();
 

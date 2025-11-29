@@ -3,11 +3,13 @@
 namespace App\Http\Controllers;
 
 use App\Enums\AppointmentStatus;
+use App\Http\Requests\DeleteAppointmentRequest;
+use App\Http\Requests\GetAppointmentsRequest;
 use App\Http\Requests\StoreAppointmentRequest;
 use App\Http\Requests\UpdateAppointmentStatusRequest;
+use App\Http\Requests\ViewAppointmentRequest;
 use App\Http\Resources\AppointmentResource;
 use App\Models\Appointment;
-use Illuminate\Http\Request;
 use OpenApi\Annotations as OA;
 use Symfony\Component\HttpFoundation\Response;
 
@@ -98,10 +100,8 @@ class PatientAppointmentController extends Controller
      *     )
      * )
      */
-    public function index(Request $request)
+    public function index(GetAppointmentsRequest $request)
     {
-        $this->authorize('viewAny', Appointment::class);
-
         $user = auth('api')->user();
 
         if ($user->isPatient()) {
@@ -221,10 +221,8 @@ class PatientAppointmentController extends Controller
      *     )
      * )
      */
-    public function show(Appointment $appointment)
+    public function show(ViewAppointmentRequest $request, Appointment $appointment)
     {
-        $this->authorize('view', $appointment);
-
         $appointment->load(['doctor', 'patient']);
 
         return $this->success(new AppointmentResource($appointment), 'Appointment retrieved successfully');
@@ -305,8 +303,6 @@ class PatientAppointmentController extends Controller
      */
     public function store(StoreAppointmentRequest $request)
     {
-        $this->authorize('create', Appointment::class);
-
         $patient = auth('api')->user()->patient;
 
         if (! $patient) {
@@ -469,8 +465,6 @@ class PatientAppointmentController extends Controller
      */
     public function updateStatus(UpdateAppointmentStatusRequest $request, Appointment $appointment)
     {
-        $this->authorize('update', $appointment);
-
         $newStatus = AppointmentStatus::fromLabel($request->status);
         $currentStatus = $appointment->status;
 
@@ -486,7 +480,7 @@ class PatientAppointmentController extends Controller
             $newLabel = $newStatus->label();
 
             return $this->error(
-                "Cannot change appointment status from '{$currentLabel}' to '{$newLabel}'",
+                sprintf("Cannot change appointment status from '%s' to '%s'", $currentLabel, $newLabel),
                 null,
                 Response::HTTP_UNPROCESSABLE_ENTITY
             );
@@ -551,10 +545,8 @@ class PatientAppointmentController extends Controller
      *     )
      * )
      */
-    public function destroy(Appointment $appointment)
+    public function destroy(DeleteAppointmentRequest $request, Appointment $appointment)
     {
-        $this->authorize('delete', $appointment);
-
         $appointment->delete();
 
         return $this->success([], 'Appointment deleted successfully');

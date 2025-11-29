@@ -2,13 +2,14 @@
 
 namespace App\Http\Requests;
 
+use App\Models\Appointment;
 use Illuminate\Foundation\Http\FormRequest;
 
 class StoreAppointmentRequest extends FormRequest
 {
     public function authorize(): bool
     {
-        return true;
+        return $this->user()->can('create', Appointment::class);
     }
 
     public function rules(): array
