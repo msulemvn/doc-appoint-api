@@ -1,8 +1,10 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\API;
 
-use App\Enums\AppointmentStatus;
+use App\Actions\Appointment\CreateAppointmentAction;
+use App\Actions\Appointment\UpdateAppointmentStatusAction;
+use App\Http\Controllers\Controller;
 use App\Http\Requests\DeleteAppointmentRequest;
 use App\Http\Requests\GetAppointmentsRequest;
 use App\Http\Requests\StoreAppointmentRequest;
@@ -114,7 +116,7 @@ class PatientAppointmentController extends Controller
             $query = $patient->appointments()->with(['doctor.user']);
 
             if ($request->has('status')) {
-                $query->where('status', AppointmentStatus::fromLabel($request->status)->value);
+                $query->where('status', $request->status);
             }
 
             $appointments = $query->get();
@@ -132,7 +134,7 @@ class PatientAppointmentController extends Controller
             $query = $doctor->appointments()->with(['patient.user']);
 
             if ($request->has('status')) {
-                $query->where('status', AppointmentStatus::fromLabel($request->status)->value);
+                $query->where('status', $request->status);
             }
 
             $appointments = $query->get();
@@ -223,9 +225,10 @@ class PatientAppointmentController extends Controller
      */
     public function show(ViewAppointmentRequest $request, Appointment $appointment)
     {
-        $appointment->load(['doctor', 'patient']);
-
-        return $this->success(new AppointmentResource($appointment), 'Appointment retrieved successfully');
+        return $this->success(
+            new AppointmentResource($appointment->load(['doctor', 'patient'])),
+            'Appointment retrieved successfully'
+        );
     }
 
     /**
@@ -301,7 +304,7 @@ class PatientAppointmentController extends Controller
      *     )
      * )
      */
-    public function store(StoreAppointmentRequest $request)
+    public function store(StoreAppointmentRequest $request, CreateAppointmentAction $action)
     {
         $patient = auth('api')->user()->patient;
 
@@ -309,25 +312,13 @@ class PatientAppointmentController extends Controller
             return $this->error('Patient profile not found', null, Response::HTTP_NOT_FOUND);
         }
 
-        $conflictingAppointment = Appointment::where('doctor_id', $request->doctor_id)
-            ->where('appointment_date', $request->appointment_date)
-            ->whereIn('status', [AppointmentStatus::PENDING->value, AppointmentStatus::CONFIRMED->value])
-            ->exists();
+        $appointment = $action->execute($patient, $request->validated());
 
-        if ($conflictingAppointment) {
-            return $this->error('This time slot is already booked', null, Response::HTTP_UNPROCESSABLE_ENTITY);
-        }
-
-        $appointment = $patient->appointments()->create([
-            'doctor_id' => $request->doctor_id,
-            'appointment_date' => $request->appointment_date,
-            'notes' => $request->notes,
-            'status' => AppointmentStatus::PENDING,
-        ]);
-
-        $appointment->load('doctor');
-
-        return $this->success(new AppointmentResource($appointment), 'Appointment created successfully', Response::HTTP_CREATED);
+        return $this->success(
+            new AppointmentResource($appointment),
+            'Appointment created successfully',
+            Response::HTTP_CREATED
+        );
     }
 
     /**
@@ -463,34 +454,17 @@ class PatientAppointmentController extends Controller
      *     )
      * )
      */
-    public function updateStatus(UpdateAppointmentStatusRequest $request, Appointment $appointment)
-    {
-        $newStatus = AppointmentStatus::fromLabel($request->status);
-        $currentStatus = $appointment->status;
+    public function updateStatus(
+        UpdateAppointmentStatusRequest $request,
+        Appointment $appointment,
+        UpdateAppointmentStatusAction $action
+    ) {
+        $appointment = $action->execute($appointment, $request->status);
 
-        $validTransitions = [
-            AppointmentStatus::PENDING->value => [AppointmentStatus::CONFIRMED->value, AppointmentStatus::CANCELLED->value],
-            AppointmentStatus::CONFIRMED->value => [AppointmentStatus::COMPLETED->value, AppointmentStatus::CANCELLED->value],
-            AppointmentStatus::COMPLETED->value => [],
-            AppointmentStatus::CANCELLED->value => [],
-        ];
-
-        if (! in_array($newStatus->value, $validTransitions[$currentStatus->value] ?? [])) {
-            $currentLabel = $currentStatus->label();
-            $newLabel = $newStatus->label();
-
-            return $this->error(
-                sprintf("Cannot change appointment status from '%s' to '%s'", $currentLabel, $newLabel),
-                null,
-                Response::HTTP_UNPROCESSABLE_ENTITY
-            );
-        }
-
-        $appointment->update(['status' => $newStatus]);
-
-        $appointment->load(['doctor', 'patient']);
-
-        return $this->success(new AppointmentResource($appointment), 'Appointment status updated successfully');
+        return $this->success(
+            new AppointmentResource($appointment),
+            'Appointment status updated successfully'
+        );
     }
 
     /**

@@ -7,9 +7,11 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
-class Patient extends Model
+class PatientDetail extends Model
 {
     use HasFactory;
+
+    protected $table = 'patients';
 
     protected $fillable = [
         'user_id',
@@ -28,6 +30,6 @@ class Patient extends Model
 
     public function appointments(): HasMany
     {
-        return $this->hasMany(Appointment::class);
+        return $this->hasMany(Appointment::class, 'patient_id');
     }
 }

@@ -1,11 +1,12 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\API;
 
 use App\Enums\AppointmentStatus;
+use App\Http\Controllers\Controller;
 use App\Http\Requests\GetAvailableDoctorsRequest;
 use App\Http\Resources\DoctorResource;
-use App\Models\Doctor;
+use App\Models\DoctorDetail;
 use OpenApi\Annotations as OA;
 
 class DoctorController extends Controller
@@ -74,7 +75,7 @@ class DoctorController extends Controller
      */
     public function available(GetAvailableDoctorsRequest $request)
     {
-        $query = Doctor::query();
+        $query = DoctorDetail::query();
 
         if ($request->has('specialization')) {
             $query->where('specialization', $request->specialization);
@@ -160,10 +161,11 @@ class DoctorController extends Controller
      *     )
      * )
      */
-    public function show(Doctor $doctor)
+    public function show(DoctorDetail $doctor)
     {
-        $doctor->load('user');
-
-        return $this->success(new DoctorResource($doctor), 'Doctor retrieved successfully');
+        return $this->success(
+            new DoctorResource($doctor->load('user')),
+            'Doctor retrieved successfully'
+        );
     }
 }

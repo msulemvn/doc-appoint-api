@@ -16,7 +16,7 @@
                 ],
                 "summary": "Login user",
                 "description": "Authenticate user and return JWT token",
-                "operationId": "a3b306d14572d1f4bd6c064b3233e7b8",
+                "operationId": "44212a9096e4b09358281e9ec8a0701d",
                 "requestBody": {
                     "required": true,
                     "content": {
@@ -186,7 +186,7 @@
                 ],
                 "summary": "Register new patient",
                 "description": "Register a new patient account and return JWT token",
-                "operationId": "8a56853624e025573120a09a4c75d468",
+                "operationId": "a718f172ff3ac464d723835815f8fb57",
                 "requestBody": {
                     "required": true,
                     "content": {
@@ -394,7 +394,7 @@
                 ],
                 "summary": "Get authenticated user profile",
                 "description": "Get the currently authenticated user's profile information",
-                "operationId": "49a89b26e30d3d0d29303645543a0513",
+                "operationId": "68eb31892e656ab3671e65ab258bec8c",
                 "responses": {
                     "200": {
                         "description": "Profile retrieved successfully",
@@ -500,7 +500,7 @@
                 ],
                 "summary": "Update authenticated user profile",
                 "description": "Update the currently authenticated user's profile information",
-                "operationId": "ac662ae856fb1cc2239e27417f0496bd",
+                "operationId": "7dcd0ffad5362dbab3180780c8d85f85",
                 "requestBody": {
                     "required": true,
                     "content": {
@@ -712,7 +712,7 @@
                 ],
                 "summary": "Logout user",
                 "description": "Invalidate the user's JWT token",
-                "operationId": "fe8f3429cd6979b3b4517e186505f9f9",
+                "operationId": "79854151e609bd20032aa5aa4d5a35c0",
                 "responses": {
                     "200": {
                         "description": "Successfully logged out",
@@ -781,7 +781,7 @@
                 ],
                 "summary": "Refresh JWT token",
                 "description": "Get a new JWT token using the current token",
-                "operationId": "2c27d311a2876560fcb5a754b556cdc5",
+                "operationId": "7d5da2870d3eba95cdd67878ab20da3a",
                 "responses": {
                     "200": {
                         "description": "Token refreshed successfully",
@@ -883,7 +883,7 @@
                 ],
                 "summary": "Get available doctors with time slots",
                 "description": "Returns list of doctors. When 'date' parameter is provided, includes available time slots for that specific date.",
-                "operationId": "aa6d7f43f74db6a1a6baf75494aec75f",
+                "operationId": "4926f3eb7d9da46bb9f7346c1268b83d",
                 "parameters": [
                     {
                         "name": "specialization",
@@ -972,7 +972,7 @@
                     "Doctors"
                 ],
                 "summary": "Get specific doctor details",
-                "operationId": "d23b10111cb604261fe8961d0e96cd9f",
+                "operationId": "61ba8b562c81aa6dbb20e76562606d52",
                 "parameters": [
                     {
                         "name": "doctor",
@@ -1083,7 +1083,7 @@
                 ],
                 "summary": "Get all appointments for authenticated user (role-based view)",
                 "description": "Returns appointments based on user role. Patients see their booked appointments with doctor details. Doctors see their scheduled appointments with patient details.",
-                "operationId": "ef6951251fc9d126b08ed113c8a7a017",
+                "operationId": "3a019280d09d336e9743cb0f5a674f43",
                 "parameters": [
                     {
                         "name": "status",
@@ -1253,7 +1253,7 @@
                     "Appointments"
                 ],
                 "summary": "Create new appointment for authenticated patient",
-                "operationId": "fb28890285ef507e083b44f0eec9654c",
+                "operationId": "9335cc1a889b59ba1f17d8685ada2713",
                 "requestBody": {
                     "required": true,
                     "content": {
@@ -1417,7 +1417,7 @@
                     "Appointments"
                 ],
                 "summary": "Get specific appointment for authenticated patient",
-                "operationId": "c308f1c2300fc7bda84f57d956cb217c",
+                "operationId": "d30c157ab58d2186e5ad9997a60f8eab",
                 "parameters": [
                     {
                         "name": "appointment",
@@ -1586,7 +1586,7 @@
                     "Appointments"
                 ],
                 "summary": "Delete appointment for authenticated patient",
-                "operationId": "0cb6de74fdec909e477d11fe34d72ba5",
+                "operationId": "e0f7409de67cae3abb27a1f90a83cb56",
                 "parameters": [
                     {
                         "name": "appointment",
@@ -1685,7 +1685,7 @@
                 ],
                 "summary": "Update appointment status (role-based permissions)",
                 "description": "Updates appointment status based on user role. Patients can only cancel appointments. Doctors can confirm, cancel, or complete appointments. State transitions are validated: pending→confirmed/cancelled, confirmed→completed/cancelled. Completed and cancelled are final states.",
-                "operationId": "b714c43512d710a49f3b9891e1a11c35",
+                "operationId": "5fc4fb5863c9de54b724959ea7592bcb",
                 "parameters": [
                     {
                         "name": "appointment",

@@ -1,18 +1,16 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\API;
 
-use App\Enums\UserRole;
+use App\Actions\Auth\RegisterPatientAction;
+use App\Actions\Auth\UpdateProfileAction;
+use App\Http\Controllers\Controller;
 use App\Http\Requests\LoginRequest;
 use App\Http\Requests\RegisterPatientRequest;
 use App\Http\Requests\UpdateProfileRequest;
 use App\Http\Resources\UserResource;
-use App\Models\Patient;
-use App\Models\User;
-use Exception;
 use Illuminate\Routing\Controllers\HasMiddleware;
 use Illuminate\Routing\Controllers\Middleware;
-use Illuminate\Support\Facades\DB;
 use OpenApi\Annotations as OA;
 
 class AuthController extends Controller implements HasMiddleware
@@ -213,39 +211,17 @@ class AuthController extends Controller implements HasMiddleware
      *     )
      * )
      */
-    public function register(RegisterPatientRequest $request)
+    public function register(RegisterPatientRequest $request, RegisterPatientAction $action)
     {
-        try {
-            DB::beginTransaction();
+        $user = $action->execute($request->validated());
+        $token = auth('api')->login($user);
 
-            $user = User::create([
-                'name' => $request->name,
-                'email' => $request->email,
-                'password' => $request->password,
-                'role' => UserRole::PATIENT,
-            ]);
-
-            $patient = Patient::create([
-                'user_id' => $user->id,
-                'phone' => $request->phone,
-                'date_of_birth' => $request->date_of_birth,
-            ]);
-
-            DB::commit();
-
-            $token = auth('api')->login($user);
-
-            return $this->success([
-                'access_token' => $token,
-                'token_type' => 'bearer',
-                'user' => new UserResource($user->load('patient')),
-                'expires_in' => auth('api')->factory()->getTTL() * 60,
-            ], 'Registration successful', 201);
-        } catch (Exception) {
-            DB::rollBack();
-
-            return $this->error('Registration failed', null, 500);
-        }
+        return $this->success([
+            'access_token' => $token,
+            'token_type' => 'bearer',
+            'user' => new UserResource($user),
+            'expires_in' => auth('api')->factory()->getTTL() * 60,
+        ], 'Registration successful', 201);
     }
 
     /**
@@ -299,9 +275,10 @@ class AuthController extends Controller implements HasMiddleware
      */
     public function getProfile()
     {
-        $user = auth('api')->user()->load('patient');
-
-        return $this->success(['user' => new UserResource($user)], 'Profile retrieved successfully');
+        return $this->success(
+            ['user' => new UserResource(auth('api')->user()->load('patient'))],
+            'Profile retrieved successfully'
+        );
     }
 
     /**
@@ -402,36 +379,14 @@ class AuthController extends Controller implements HasMiddleware
      *     )
      * )
      */
-    public function updateProfile(UpdateProfileRequest $request)
+    public function updateProfile(UpdateProfileRequest $request, UpdateProfileAction $action)
     {
-        try {
-            DB::beginTransaction();
+        $user = $action->execute(auth('api')->user(), $request->validated());
 
-            $user = auth('api')->user();
-            $patient = $user->patient;
-
-            $userData = $request->only(['name', 'email', 'password']);
-            $userData = array_filter($userData);
-
-            if ($userData !== []) {
-                $user->update($userData);
-            }
-
-            $patientData = $request->only(['phone', 'date_of_birth']);
-            $patientData = array_filter($patientData);
-
-            if ($patientData !== [] && $patient) {
-                $patient->update($patientData);
-            }
-
-            DB::commit();
-
-            return $this->success(['user' => new UserResource($user->fresh()->load('patient'))], 'Profile updated successfully');
-        } catch (Exception) {
-            DB::rollBack();
-
-            return $this->error('Profile update failed', null, 500);
-        }
+        return $this->success(
+            ['user' => new UserResource($user)],
+            'Profile updated successfully'
+        );
     }
 
     /**

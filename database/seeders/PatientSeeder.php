@@ -3,7 +3,7 @@
 namespace Database\Seeders;
 
 use App\Enums\UserRole;
-use App\Models\Patient;
+use App\Models\PatientDetail;
 use App\Models\User;
 use Illuminate\Database\Seeder;
 
@@ -82,7 +82,7 @@ class PatientSeeder extends Seeder
                 'role' => UserRole::PATIENT,
             ]);
 
-            Patient::create([
+            PatientDetail::create([
                 'user_id' => $user->id,
                 'phone' => $patientData['phone'],
                 'date_of_birth' => $patientData['date_of_birth'],

@@ -79,12 +79,12 @@ class User extends Authenticatable implements JWTSubject
 
     public function patient(): HasOne
     {
-        return $this->hasOne(Patient::class);
+        return $this->hasOne(PatientDetail::class);
     }
 
     public function doctor(): HasOne
     {
-        return $this->hasOne(Doctor::class);
+        return $this->hasOne(DoctorDetail::class);
     }
 
     public function isDoctor(): bool

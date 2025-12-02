@@ -1,8 +1,8 @@
 <?php
 
-use App\Http\Controllers\AuthController;
-use App\Http\Controllers\DoctorController;
-use App\Http\Controllers\PatientAppointmentController;
+use App\Http\Controllers\API\AuthController;
+use App\Http\Controllers\API\DoctorController;
+use App\Http\Controllers\API\PatientAppointmentController;
 use Illuminate\Support\Facades\Route;
 
 Route::post('login', [AuthController::class, 'login']);

@@ -21,7 +21,7 @@ class DatabaseSeeder extends Seeder
             'role' => \App\Enums\UserRole::PATIENT,
         ]);
 
-        \App\Models\Patient::create([
+        \App\Models\PatientDetail::create([
             'user_id' => $testUser->id,
             'phone' => '+1234567890',
             'date_of_birth' => '1990-01-01',
