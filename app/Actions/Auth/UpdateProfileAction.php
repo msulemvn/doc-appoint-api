@@ -10,11 +10,16 @@ class UpdateProfileAction
     public function execute(User $user, array $data): User
     {
         DB::transaction(function () use ($user, $data) {
-            $user->update(array_filter([
+            $userData = array_filter([
                 'name' => $data['name'] ?? null,
                 'email' => $data['email'] ?? null,
-                'password' => $data['password'] ?? null,
-            ]));
+            ]);
+
+            if (isset($data['password'])) {
+                $userData['password'] = bcrypt($data['password']);
+            }
+
+            $user->update($userData);
 
             if ($user->patient) {
                 $user->patient->update(array_filter([
