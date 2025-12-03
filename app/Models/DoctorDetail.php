@@ -17,6 +17,11 @@ class DoctorDetail extends Model
         'user_id',
         'specialization',
         'phone',
+        'email',
+        'bio',
+        'years_of_experience',
+        'consultation_fee',
+        'license_number',
     ];
 
     public function user(): BelongsTo

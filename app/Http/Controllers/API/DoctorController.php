@@ -41,34 +41,36 @@ class DoctorController extends Controller
      *         description="Available doctors retrieved successfully",
      *
      *         @OA\JsonContent(
-     *             allOf={
+     *             type="array",
      *
-     *                 @OA\Schema(ref="#/components/schemas/SuccessResponse"),
-     *                 @OA\Schema(
+     *             @OA\Items(
+     *                 type="object",
      *
-     *                     @OA\Property(
-     *                         property="data",
-     *                         type="array",
+     *                 @OA\Property(property="id", type="integer", example=1),
+     *                 @OA\Property(property="name", type="string", example="Dr. John Smith"),
+     *                 @OA\Property(property="email", type="string", example="john.smith@hospital.com"),
+     *                 @OA\Property(property="phone", type="string", example="+1234567890"),
+     *                 @OA\Property(property="specialization", type="string", example="Cardiology"),
+     *                 @OA\Property(property="bio", type="string", example="Experienced cardiologist with 15 years of practice"),
+     *                 @OA\Property(property="years_of_experience", type="integer", example=15),
+     *                 @OA\Property(property="consultation_fee", type="number", format="float", example=150.00),
+     *                 @OA\Property(property="license_number", type="string", example="MD12345"),
+     *                 @OA\Property(
+     *                     property="user",
+     *                     type="object",
+     *                     @OA\Property(property="id", type="integer", example=1),
+     *                     @OA\Property(property="name", type="string", example="Dr. John Smith"),
+     *                     @OA\Property(property="email", type="string", example="john.smith@hospital.com"),
+     *                     @OA\Property(property="avatar", type="string", nullable=true, example=null)
+     *                 ),
+     *                 @OA\Property(
+     *                     property="available_slots",
+     *                     type="array",
+     *                     description="Available time slots (only included when date parameter is provided)",
      *
-     *                         @OA\Items(
-     *                             type="object",
-     *
-     *                             @OA\Property(property="id", type="integer", example=1),
-     *                             @OA\Property(property="name", type="string", example="Dr. John Smith"),
-     *                             @OA\Property(property="specialization", type="string", example="Cardiology"),
-     *                             @OA\Property(property="email", type="string", example="john.smith@hospital.com"),
-     *                             @OA\Property(property="phone", type="string", example="+1234567890"),
-     *                             @OA\Property(
-     *                                 property="available_slots",
-     *                                 type="array",
-     *                                 description="Available time slots (only included when date parameter is provided)",
-     *
-     *                                 @OA\Items(type="string", example="09:00")
-     *                             )
-     *                         )
-     *                     )
+     *                     @OA\Items(type="string", example="09:00")
      *                 )
-     *             }
+     *             )
      *         )
      *     )
      * )
@@ -90,7 +92,7 @@ class DoctorController extends Controller
 
         $doctors = $query->with('user')->get();
 
-        return $this->success(DoctorResource::collection($doctors), 'Available doctors retrieved successfully');
+        return response()->json(DoctorResource::collection($doctors));
     }
 
     /**
@@ -122,29 +124,31 @@ class DoctorController extends Controller
      *         description="Doctor retrieved successfully",
      *
      *         @OA\JsonContent(
-     *             allOf={
+     *             type="object",
+     *             @OA\Property(property="id", type="integer", example=1),
+     *             @OA\Property(property="name", type="string", example="Dr. John Smith"),
+     *             @OA\Property(property="email", type="string", example="john.smith@hospital.com"),
+     *             @OA\Property(property="phone", type="string", example="+1234567890"),
+     *             @OA\Property(property="specialization", type="string", example="Cardiology"),
+     *             @OA\Property(property="bio", type="string", example="Experienced cardiologist with 15 years of practice"),
+     *             @OA\Property(property="years_of_experience", type="integer", example=15),
+     *             @OA\Property(property="consultation_fee", type="number", format="float", example=150.00),
+     *             @OA\Property(property="license_number", type="string", example="MD12345"),
+     *             @OA\Property(
+     *                 property="user",
+     *                 type="object",
+     *                 @OA\Property(property="id", type="integer", example=1),
+     *                 @OA\Property(property="name", type="string", example="Dr. John Smith"),
+     *                 @OA\Property(property="email", type="string", example="john.smith@hospital.com"),
+     *                 @OA\Property(property="avatar", type="string", nullable=true, example=null)
+     *             ),
+     *             @OA\Property(
+     *                 property="available_slots",
+     *                 type="array",
+     *                 description="Available time slots (only included when date parameter is provided)",
      *
-     *                 @OA\Schema(ref="#/components/schemas/SuccessResponse"),
-     *                 @OA\Schema(
-     *
-     *                     @OA\Property(
-     *                         property="data",
-     *                         type="object",
-     *                         @OA\Property(property="id", type="integer", example=1),
-     *                         @OA\Property(property="name", type="string", example="Dr. John Smith"),
-     *                         @OA\Property(property="specialization", type="string", example="Cardiology"),
-     *                         @OA\Property(property="email", type="string", example="john.smith@hospital.com"),
-     *                         @OA\Property(property="phone", type="string", example="+1234567890"),
-     *                         @OA\Property(
-     *                             property="available_slots",
-     *                             type="array",
-     *                             description="Available time slots (only included when date parameter is provided)",
-     *
-     *                             @OA\Items(type="string", example="09:00")
-     *                         )
-     *                     )
-     *                 )
-     *             }
+     *                 @OA\Items(type="string", example="09:00")
+     *             )
      *         )
      *     ),
      *
@@ -163,9 +167,6 @@ class DoctorController extends Controller
      */
     public function show(DoctorDetail $doctor)
     {
-        return $this->success(
-            new DoctorResource($doctor->load('user')),
-            'Doctor retrieved successfully'
-        );
+        return response()->json(new DoctorResource($doctor->load('user')));
     }
 }

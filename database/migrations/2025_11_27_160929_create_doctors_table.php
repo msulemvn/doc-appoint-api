@@ -16,6 +16,11 @@ return new class extends Migration
             $table->foreignId('user_id')->constrained()->onDelete('cascade');
             $table->string('specialization');
             $table->string('phone')->nullable();
+            $table->string('email')->nullable();
+            $table->text('bio')->nullable();
+            $table->integer('years_of_experience')->nullable();
+            $table->decimal('consultation_fee', 8, 2)->nullable();
+            $table->string('license_number')->nullable();
             $table->timestamps();
         });
     }

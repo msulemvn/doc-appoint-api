@@ -913,52 +913,79 @@
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "allOf": [
-                                        {
-                                            "$ref": "#/components/schemas/SuccessResponse"
-                                        },
-                                        {
-                                            "properties": {
-                                                "data": {
-                                                    "type": "array",
-                                                    "items": {
-                                                        "properties": {
-                                                            "id": {
-                                                                "type": "integer",
-                                                                "example": 1
-                                                            },
-                                                            "name": {
-                                                                "type": "string",
-                                                                "example": "Dr. John Smith"
-                                                            },
-                                                            "specialization": {
-                                                                "type": "string",
-                                                                "example": "Cardiology"
-                                                            },
-                                                            "email": {
-                                                                "type": "string",
-                                                                "example": "john.smith@hospital.com"
-                                                            },
-                                                            "phone": {
-                                                                "type": "string",
-                                                                "example": "+1234567890"
-                                                            },
-                                                            "available_slots": {
-                                                                "description": "Available time slots (only included when date parameter is provided)",
-                                                                "type": "array",
-                                                                "items": {
-                                                                    "type": "string",
-                                                                    "example": "09:00"
-                                                                }
-                                                            }
-                                                        },
-                                                        "type": "object"
-                                                    }
-                                                }
+                                    "type": "array",
+                                    "items": {
+                                        "properties": {
+                                            "id": {
+                                                "type": "integer",
+                                                "example": 1
                                             },
-                                            "type": "object"
-                                        }
-                                    ]
+                                            "name": {
+                                                "type": "string",
+                                                "example": "Dr. John Smith"
+                                            },
+                                            "email": {
+                                                "type": "string",
+                                                "example": "john.smith@hospital.com"
+                                            },
+                                            "phone": {
+                                                "type": "string",
+                                                "example": "+1234567890"
+                                            },
+                                            "specialization": {
+                                                "type": "string",
+                                                "example": "Cardiology"
+                                            },
+                                            "bio": {
+                                                "type": "string",
+                                                "example": "Experienced cardiologist with 15 years of practice"
+                                            },
+                                            "years_of_experience": {
+                                                "type": "integer",
+                                                "example": 15
+                                            },
+                                            "consultation_fee": {
+                                                "type": "number",
+                                                "format": "float",
+                                                "example": 150
+                                            },
+                                            "license_number": {
+                                                "type": "string",
+                                                "example": "MD12345"
+                                            },
+                                            "user": {
+                                                "properties": {
+                                                    "id": {
+                                                        "type": "integer",
+                                                        "example": 1
+                                                    },
+                                                    "name": {
+                                                        "type": "string",
+                                                        "example": "Dr. John Smith"
+                                                    },
+                                                    "email": {
+                                                        "type": "string",
+                                                        "example": "john.smith@hospital.com"
+                                                    },
+                                                    "avatar": {
+                                                        "type": "string",
+                                                        "example": null,
+                                                        "nullable": true
+                                                    }
+                                                },
+                                                "type": "object"
+                                            },
+                                            "available_slots": {
+                                                "description": "Available time slots (only included when date parameter is provided)",
+                                                "type": "array",
+                                                "items": {
+                                                    "type": "string",
+                                                    "example": "09:00"
+                                                }
+                                            }
+                                        },
+                                        "type": "object"
+                                    }
                                 }
                             }
                         }
@@ -1002,49 +1029,76 @@
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "allOf": [
-                                        {
-                                            "$ref": "#/components/schemas/SuccessResponse"
+                                    "properties": {
+                                        "id": {
+                                            "type": "integer",
+                                            "example": 1
                                         },
-                                        {
+                                        "name": {
+                                            "type": "string",
+                                            "example": "Dr. John Smith"
+                                        },
+                                        "email": {
+                                            "type": "string",
+                                            "example": "john.smith@hospital.com"
+                                        },
+                                        "phone": {
+                                            "type": "string",
+                                            "example": "+1234567890"
+                                        },
+                                        "specialization": {
+                                            "type": "string",
+                                            "example": "Cardiology"
+                                        },
+                                        "bio": {
+                                            "type": "string",
+                                            "example": "Experienced cardiologist with 15 years of practice"
+                                        },
+                                        "years_of_experience": {
+                                            "type": "integer",
+                                            "example": 15
+                                        },
+                                        "consultation_fee": {
+                                            "type": "number",
+                                            "format": "float",
+                                            "example": 150
+                                        },
+                                        "license_number": {
+                                            "type": "string",
+                                            "example": "MD12345"
+                                        },
+                                        "user": {
                                             "properties": {
-                                                "data": {
-                                                    "properties": {
-                                                        "id": {
-                                                            "type": "integer",
-                                                            "example": 1
-                                                        },
-                                                        "name": {
-                                                            "type": "string",
-                                                            "example": "Dr. John Smith"
-                                                        },
-                                                        "specialization": {
-                                                            "type": "string",
-                                                            "example": "Cardiology"
-                                                        },
-                                                        "email": {
-                                                            "type": "string",
-                                                            "example": "john.smith@hospital.com"
-                                                        },
-                                                        "phone": {
-                                                            "type": "string",
-                                                            "example": "+1234567890"
-                                                        },
-                                                        "available_slots": {
-                                                            "description": "Available time slots (only included when date parameter is provided)",
-                                                            "type": "array",
-                                                            "items": {
-                                                                "type": "string",
-                                                                "example": "09:00"
-                                                            }
-                                                        }
-                                                    },
-                                                    "type": "object"
+                                                "id": {
+                                                    "type": "integer",
+                                                    "example": 1
+                                                },
+                                                "name": {
+                                                    "type": "string",
+                                                    "example": "Dr. John Smith"
+                                                },
+                                                "email": {
+                                                    "type": "string",
+                                                    "example": "john.smith@hospital.com"
+                                                },
+                                                "avatar": {
+                                                    "type": "string",
+                                                    "example": null,
+                                                    "nullable": true
                                                 }
                                             },
                                             "type": "object"
+                                        },
+                                        "available_slots": {
+                                            "description": "Available time slots (only included when date parameter is provided)",
+                                            "type": "array",
+                                            "items": {
+                                                "type": "string",
+                                                "example": "09:00"
+                                            }
                                         }
-                                    ]
+                                    },
+                                    "type": "object"
                                 }
                             }
                         }
