@@ -18,7 +18,7 @@ class DoctorResource extends JsonResource
     {
         return [
             'id' => $this->id,
-            'name' => $this->user->name,
+            'name' => $this->user->doctor_name,
             'email' => $this->email ?? $this->user->email,
             'phone' => $this->phone,
             'specialization' => $this->specialization,
@@ -28,9 +28,9 @@ class DoctorResource extends JsonResource
             'license_number' => $this->license_number,
             'user' => [
                 'id' => $this->user->id,
-                'name' => $this->user->name,
+                'name' => $this->user->doctor_name,
                 'email' => $this->user->email,
-                'avatar' => $this->user->avatar ?? null,
+                'avatar' => $this->user->avatar,
             ],
             'available_slots' => $this->when(
                 $request->has('date'),

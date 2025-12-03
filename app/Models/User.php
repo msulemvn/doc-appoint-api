@@ -96,4 +96,13 @@ class User extends Authenticatable implements JWTSubject
     {
         return $this->role === UserRole::PATIENT;
     }
+
+    public function getDoctorNameAttribute(): string
+    {
+        if ($this->isDoctor()) {
+            return 'Dr. ' . $this->name;
+        }
+
+        return $this->name;
+    }
 }
