@@ -31,8 +31,7 @@ class AppointmentResource extends JsonResource
                 $isDoctor && $this->relationLoaded('patient'),
                 fn () => [
                     'id' => $this->patient->id,
-                    'name' => $this->patient->user->name,
-                    'email' => $this->patient->user->email,
+                    'user' => new UserResource($this->patient->user),
                     'phone' => $this->patient->phone,
                     'date_of_birth' => $this->patient->date_of_birth?->format('Y-m-d'),
                 ]
@@ -41,9 +40,8 @@ class AppointmentResource extends JsonResource
                 $isPatient && $this->relationLoaded('doctor'),
                 fn () => [
                     'id' => $this->doctor->id,
-                    'name' => $this->doctor->user->name,
+                    'user' => new UserResource($this->doctor->user),
                     'specialization' => $this->doctor->specialization,
-                    'email' => $this->doctor->user->email,
                     'phone' => $this->doctor->phone,
                 ]
             ),
