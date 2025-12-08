@@ -22,7 +22,8 @@ class AppServiceProvider extends ServiceProvider
     public function boot(): void
     {
         Auth::extend('jwt', fn ($app, $name, array $config) => new JWTGuard(
-            Auth::createUserProvider($config['provider']),
+            $app['tymon.jwt'],
+            $app['auth']->createUserProvider($config['provider']),
             $app['request']
         ));
     }
