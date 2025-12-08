@@ -3,6 +3,7 @@
 namespace App\Actions\Appointment;
 
 use App\Enums\AppointmentStatus;
+use App\Events\AppointmentCreated;
 use App\Models\Appointment;
 use App\Models\PatientDetail;
 
@@ -16,6 +17,8 @@ class CreateAppointmentAction
             'notes' => $data['notes'] ?? null,
             'status' => AppointmentStatus::PENDING,
         ]);
+
+        event(new AppointmentCreated($appointment));
 
         return $appointment->load('doctor');
     }
