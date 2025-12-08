@@ -6,7 +6,7 @@ use App\Models\Appointment;
 use Illuminate\Bus\Queueable;
 use Illuminate\Notifications\Notification;
 
-class AppointmentCreatedNotification extends Notification
+class AppointmentUpdatedNotification extends Notification
 {
     use Queueable;
 
