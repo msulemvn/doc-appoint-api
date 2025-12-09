@@ -54,5 +54,4 @@ class AppointmentPolicy
 
         return false;
     }
-
 }

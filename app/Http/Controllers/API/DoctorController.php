@@ -125,6 +125,7 @@ class DoctorController extends Controller
      *
      *         @OA\JsonContent(
      *             type="object",
+     *
      *             @OA\Property(property="id", type="integer", example=1),
      *             @OA\Property(property="name", type="string", example="Dr. John Smith"),
      *             @OA\Property(property="email", type="string", example="john.smith@hospital.com"),

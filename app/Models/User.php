@@ -100,7 +100,7 @@ class User extends Authenticatable implements JWTSubject
     public function getDoctorNameAttribute(): string
     {
         if ($this->isDoctor()) {
-            return 'Dr. ' . $this->name;
+            return 'Dr. '.$this->name;
         }
 
         return $this->name;

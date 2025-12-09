@@ -468,5 +468,4 @@ class PatientAppointmentController extends Controller
             'Appointment status updated successfully'
         );
     }
-
 }

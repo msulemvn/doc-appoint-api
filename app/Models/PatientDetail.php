@@ -10,7 +10,8 @@ use Illuminate\Notifications\Notifiable;
 
 class PatientDetail extends Model
 {
-    use HasFactory, Notifiable;
+    use HasFactory;
+    use Notifiable;
 
     protected $table = 'patients';
 
