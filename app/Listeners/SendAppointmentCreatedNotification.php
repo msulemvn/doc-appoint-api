@@ -13,10 +13,10 @@ class SendAppointmentCreatedNotification
     public function handle(AppointmentCreated $event): void
     {
         $appointment = $event->appointment;
-        $patient = $appointment->patient;
-        $doctor = $appointment->doctor;
+        $patientUser = $appointment->patient->user;
+        $doctorUser = $appointment->doctor->user;
 
-        $patient->notify(new AppointmentCreatedNotification($appointment));
-        $doctor->notify(new AppointmentCreatedNotification($appointment));
+        $patientUser->notify(new AppointmentCreatedNotification($appointment));
+        $doctorUser->notify(new AppointmentCreatedNotification($appointment));
     }
 }

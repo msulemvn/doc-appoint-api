@@ -22,5 +22,3 @@ Broadcast::channel('chats.{chatId}', function (User $user, int $chatId) {
 
     return $chat && ($user->id === $chat->user1_id || $user->id === $chat->user2_id);
 });
-
-Broadcast::routes(['prefix' => 'api', 'middleware' => ['auth:api']]);

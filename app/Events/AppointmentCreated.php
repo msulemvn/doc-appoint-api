@@ -9,6 +9,7 @@ use Illuminate\Broadcasting\PrivateChannel;
 use Illuminate\Contracts\Broadcasting\ShouldBroadcast;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Events\Dispatchable;
+use Illuminate\Notifications\Messages\BroadcastMessage;
 use Illuminate\Queue\SerializesModels;
 
 class AppointmentCreated implements ShouldBroadcast, ShouldQueue
@@ -42,5 +43,14 @@ class AppointmentCreated implements ShouldBroadcast, ShouldQueue
     public function broadcastAs(): string
     {
         return 'appointment.created';
+    }
+
+    public function toBroadcast(): BroadcastMessage
+    {
+        $appointment = $this->appointment->load(['patient.user', 'doctor.user']);
+
+        return new BroadcastMessage([
+            'appointment' => $appointment->toArray(),
+        ]);
     }
 }

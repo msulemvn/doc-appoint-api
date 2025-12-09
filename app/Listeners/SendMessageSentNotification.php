@@ -2,8 +2,8 @@
 
 namespace App\Listeners;
 
-use App\Models\User;
 use App\Events\MessageSent;
+use App\Models\User;
 use App\Notifications\MessageSentNotification;
 
 class SendMessageSentNotification

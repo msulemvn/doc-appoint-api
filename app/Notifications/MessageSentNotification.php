@@ -33,32 +33,16 @@ class MessageSentNotification extends Notification implements ShouldBroadcast
 
     public function toBroadcast(object $notifiable): BroadcastMessage
     {
-        $notificationId = $notifiable->notifications()
-            ->where('type', static::class)
-            ->where('data->message_id', $this->message->id)
-            ->latest()
-            ->first()?->id ?? uniqid();
+        $message = $this->message->load('sender');
 
         return new BroadcastMessage([
-            'id' => $notificationId,
-            'type' => static::class,
-            'data' => [
-                'message_id' => $this->message->id,
-                'chat_id' => $this->message->chat_id,
-                'sender_id' => $this->message->user_id,
-                'sender_name' => $this->message->sender->name,
-                'content' => $this->message->content,
-                'file' => $this->message->file,
-            ],
-            'read_at' => null,
-            'created_at' => now()->toISOString(),
-            'updated_at' => now()->toISOString(),
+            'message' => $message->toArray(),
         ]);
     }
 
     public function broadcastAs(): string
     {
-        return 'notification.created';
+        return 'message.sent';
     }
 
     public function toArray(object $notifiable): array

@@ -33,32 +33,16 @@ class AppointmentCreatedNotification extends Notification implements ShouldBroad
 
     public function toBroadcast(object $notifiable): BroadcastMessage
     {
-        $notificationId = $notifiable->notifications()
-            ->where('type', static::class)
-            ->where('data->appointment_id', $this->appointment->id)
-            ->latest()
-            ->first()?->id ?? uniqid();
+        $appointment = $this->appointment->load(['patient.user', 'doctor.user']);
 
         return new BroadcastMessage([
-            'id' => $notificationId,
-            'type' => static::class,
-            'data' => [
-                'appointment_id' => $this->appointment->id,
-                'patient_name' => $this->appointment->patient->user->name,
-                'doctor_name' => $this->appointment->doctor->user->name,
-                'appointment_date' => $this->appointment->appointment_date->toDateTimeString(),
-                'status' => $this->appointment->status->value,
-                'notes' => $this->appointment->notes,
-            ],
-            'read_at' => null,
-            'created_at' => now()->toISOString(),
-            'updated_at' => now()->toISOString(),
+            'appointment' => $appointment->toArray(),
         ]);
     }
 
     public function broadcastAs(): string
     {
-        return 'notification.created';
+        return 'appointment.created';
     }
 
     public function toArray(object $notifiable): array
