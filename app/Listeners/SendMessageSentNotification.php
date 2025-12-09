@@ -5,8 +5,9 @@ namespace App\Listeners;
 use App\Events\MessageSent;
 use App\Models\User;
 use App\Notifications\MessageSentNotification;
+use Illuminate\Contracts\Queue\ShouldQueue;
 
-class SendMessageSentNotification
+class SendMessageSentNotification implements ShouldQueue
 {
     public function handle(MessageSent $event): void
     {

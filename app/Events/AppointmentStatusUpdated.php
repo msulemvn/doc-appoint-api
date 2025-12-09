@@ -9,6 +9,7 @@ use Illuminate\Broadcasting\PrivateChannel;
 use Illuminate\Contracts\Broadcasting\ShouldBroadcast;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Events\Dispatchable;
+use Illuminate\Notifications\Messages\BroadcastMessage;
 use Illuminate\Queue\SerializesModels;
 
 class AppointmentStatusUpdated implements ShouldBroadcast, ShouldQueue
@@ -17,6 +18,9 @@ class AppointmentStatusUpdated implements ShouldBroadcast, ShouldQueue
     use InteractsWithSockets;
     use SerializesModels;
 
+    /**
+     * Create a new event instance.
+     */
     public function __construct(
         public Appointment $appointment
     ) {}
@@ -28,14 +32,25 @@ class AppointmentStatusUpdated implements ShouldBroadcast, ShouldQueue
      */
     public function broadcastOn(): array
     {
-        return [
+        $channels = [
             new PrivateChannel('users.'.$this->appointment->patient->user_id),
             new PrivateChannel('users.'.$this->appointment->doctor->user_id),
         ];
+
+        return $channels;
     }
 
     public function broadcastAs(): string
     {
         return 'appointment.status.updated';
+    }
+
+    public function toBroadcast(): BroadcastMessage
+    {
+        $appointment = $this->appointment->load(['patient.user', 'doctor.user']);
+
+        return new BroadcastMessage([
+            'appointment' => $appointment->toArray(),
+        ]);
     }
 }

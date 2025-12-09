@@ -9,7 +9,7 @@ use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Messages\BroadcastMessage;
 use Illuminate\Notifications\Notification;
 
-class AppointmentCreatedNotification extends Notification implements ShouldBroadcast, ShouldQueue
+class AppointmentStatusUpdatedNotification extends Notification implements ShouldBroadcast, ShouldQueue
 {
     use Queueable;
 
@@ -28,18 +28,18 @@ class AppointmentCreatedNotification extends Notification implements ShouldBroad
         $isPatient = $notifiable->role === 'patient';
         $doctorName = $this->appointment->doctor->user->name;
         $patientName = $this->appointment->patient->user->name;
+        $status = $this->appointment->status->value;
 
         $message = $isPatient
-            ? 'New appointment scheduled with Dr. '.$doctorName
-            : 'New appointment request from '.$patientName;
+            ? sprintf('Appointment with Dr. %s is now %s', $doctorName, $status)
+            : sprintf('Appointment with %s is now %s', $patientName, $status);
 
         return [
             'appointment_id' => $this->appointment->id,
             'patient_name' => $patientName,
             'doctor_name' => $doctorName,
             'appointment_date' => $this->appointment->appointment_date->toDateTimeString(),
-            'status' => $this->appointment->status->value,
-            'notes' => $this->appointment->notes,
+            'status' => $status,
             'message' => $message,
         ];
     }

@@ -3,7 +3,7 @@
 namespace App\Actions\Appointment;
 
 use App\Enums\AppointmentStatus;
-use App\Events\AppointmentUpdated;
+use App\Events\AppointmentStatusUpdated;
 use App\Models\Appointment;
 
 class UpdateAppointmentStatusAction
@@ -16,7 +16,7 @@ class UpdateAppointmentStatusAction
 
         $appointment->load(['doctor', 'patient']);
 
-        AppointmentUpdated::dispatch($appointment);
+        AppointmentStatusUpdated::dispatch($appointment);
 
         return $appointment;
     }

@@ -4,9 +4,13 @@ namespace App\Listeners;
 
 use App\Events\AppointmentCreated;
 use App\Notifications\AppointmentCreatedNotification;
+use Illuminate\Bus\Queueable;
+use Illuminate\Contracts\Queue\ShouldQueue;
 
-class SendAppointmentCreatedNotification
+class SendAppointmentCreatedNotification implements ShouldQueue
 {
+    use Queueable;
+
     /**
      * Handle the event.
      */

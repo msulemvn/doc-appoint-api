@@ -5,14 +5,18 @@ namespace App\Notifications;
 use App\Models\Message;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Broadcasting\ShouldBroadcast;
+use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Messages\BroadcastMessage;
 use Illuminate\Notifications\Notification;
 
-class MessageSentNotification extends Notification implements ShouldBroadcast
+class MessageSentNotification extends Notification implements ShouldBroadcast, ShouldQueue
 {
     use Queueable;
 
-    public function __construct(public Message $message) {}
+    public function __construct(public Message $message)
+    {
+        $this->onQueue('notification');
+    }
 
     public function via(object $notifiable): array
     {
@@ -21,6 +25,8 @@ class MessageSentNotification extends Notification implements ShouldBroadcast
 
     public function toDatabase(object $notifiable): array
     {
+        $messageText = $this->message->content ?: ($this->message->file ? '📎 Sent an attachment' : 'New message');
+
         return [
             'message_id' => $this->message->id,
             'chat_id' => $this->message->chat_id,
@@ -28,21 +34,13 @@ class MessageSentNotification extends Notification implements ShouldBroadcast
             'sender_name' => $this->message->sender->name,
             'content' => $this->message->content,
             'file' => $this->message->file,
+            'message' => sprintf('New message from %s: %s', $this->message->sender->name, $messageText),
         ];
     }
 
     public function toBroadcast(object $notifiable): BroadcastMessage
     {
-        $message = $this->message->load('sender');
-
-        return new BroadcastMessage([
-            'message' => $message->toArray(),
-        ]);
-    }
-
-    public function broadcastAs(): string
-    {
-        return 'message.sent';
+        return new BroadcastMessage($this->toDatabase($notifiable));
     }
 
     public function toArray(object $notifiable): array
