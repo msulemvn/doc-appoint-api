@@ -1,5 +1,6 @@
 <?php
 
+use App\Models\Chat;
 use App\Models\User;
 use Illuminate\Support\Facades\Broadcast;
 
@@ -15,5 +16,11 @@ use Illuminate\Support\Facades\Broadcast;
 */
 
 Broadcast::channel('users.{id}', fn (User $user, int $id) => (int) $user->id === (int) $id);
+
+Broadcast::channel('chats.{chatId}', function (User $user, int $chatId) {
+    $chat = Chat::find($chatId);
+
+    return $chat && ($user->id === $chat->user1_id || $user->id === $chat->user2_id);
+});
 
 Broadcast::routes(['prefix' => 'api', 'middleware' => ['auth:api']]);
