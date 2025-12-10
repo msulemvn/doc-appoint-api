@@ -3,19 +3,12 @@
 namespace App\Events;
 
 use App\Models\Appointment;
-use Illuminate\Broadcasting\Channel;
-use Illuminate\Broadcasting\InteractsWithSockets;
-use Illuminate\Broadcasting\PrivateChannel;
-use Illuminate\Contracts\Broadcasting\ShouldBroadcast;
-use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Events\Dispatchable;
-use Illuminate\Notifications\Messages\BroadcastMessage;
 use Illuminate\Queue\SerializesModels;
 
-class AppointmentStatusUpdated implements ShouldBroadcast, ShouldQueue
+class AppointmentStatusUpdated
 {
     use Dispatchable;
-    use InteractsWithSockets;
     use SerializesModels;
 
     /**
@@ -24,33 +17,4 @@ class AppointmentStatusUpdated implements ShouldBroadcast, ShouldQueue
     public function __construct(
         public Appointment $appointment
     ) {}
-
-    /**
-     * Get the channels the event should broadcast on.
-     *
-     * @return array<int, Channel>
-     */
-    public function broadcastOn(): array
-    {
-        $channels = [
-            new PrivateChannel('users.'.$this->appointment->patient->user_id),
-            new PrivateChannel('users.'.$this->appointment->doctor->user_id),
-        ];
-
-        return $channels;
-    }
-
-    public function broadcastAs(): string
-    {
-        return 'appointment.status.updated';
-    }
-
-    public function toBroadcast(): BroadcastMessage
-    {
-        $appointment = $this->appointment->load(['patient.user', 'doctor.user']);
-
-        return new BroadcastMessage([
-            'appointment' => $appointment->toArray(),
-        ]);
-    }
 }

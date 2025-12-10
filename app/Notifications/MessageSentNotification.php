@@ -25,7 +25,8 @@ class MessageSentNotification extends Notification implements ShouldBroadcast, S
 
     public function toDatabase(object $notifiable): array
     {
-        $messageText = $this->message->content ?: ($this->message->file ? '📎 Sent an attachment' : 'New message');
+        $messageText = $this->message->content
+            ?: ($this->message->file ? '📎 Sent an attachment' : 'New message');
 
         return [
             'message_id' => $this->message->id,
