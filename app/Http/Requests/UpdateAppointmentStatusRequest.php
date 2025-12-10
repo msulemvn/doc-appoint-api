@@ -26,7 +26,7 @@ class UpdateAppointmentStatusRequest extends FormRequest
 
         if ($user->isDoctor()) {
             return [
-                'status' => ['required', 'string', Rule::in(['confirmed', 'cancelled', 'completed'])],
+                'status' => ['required', 'string', Rule::in(['awaiting_payment', 'confirmed', 'cancelled', 'completed'])],
             ];
         }
 
@@ -58,7 +58,8 @@ class UpdateAppointmentStatusRequest extends FormRequest
     private function isValidTransition(AppointmentStatus $current, AppointmentStatus $new): bool
     {
         $validTransitions = [
-            AppointmentStatus::PENDING->value => [AppointmentStatus::CONFIRMED->value, AppointmentStatus::CANCELLED->value],
+            AppointmentStatus::PENDING->value => [AppointmentStatus::AWAITING_PAYMENT->value, AppointmentStatus::CANCELLED->value],
+            AppointmentStatus::AWAITING_PAYMENT->value => [AppointmentStatus::CONFIRMED->value, AppointmentStatus::CANCELLED->value],
             AppointmentStatus::CONFIRMED->value => [AppointmentStatus::COMPLETED->value, AppointmentStatus::CANCELLED->value],
             AppointmentStatus::COMPLETED->value => [],
             AppointmentStatus::CANCELLED->value => [],

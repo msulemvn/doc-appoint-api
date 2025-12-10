@@ -37,7 +37,6 @@ return new class extends Migration
             $table->uuid('uuid')->unique()->after('id');
         });
 
-        // Generate UUIDs for existing chats
         DB::statement('UPDATE chats SET uuid = UUID()');
     }
 

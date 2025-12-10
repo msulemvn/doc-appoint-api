@@ -6,6 +6,8 @@ use App\Enums\UserRole;
 use App\Models\PatientDetail;
 use App\Models\User;
 use Illuminate\Support\Facades\DB;
+use Stripe\Customer;
+use Stripe\Stripe;
 
 class RegisterPatientAction
 {
@@ -18,6 +20,16 @@ class RegisterPatientAction
                 'password' => $data['password'],
                 'role' => UserRole::PATIENT,
             ]);
+
+            Stripe::setApiKey(config('services.stripe.secret'));
+
+            $customer = Customer::create([
+                'email' => $user->email,
+                'name' => $user->name,
+            ]);
+
+            $user->stripe_customer_id = $customer->id;
+            $user->save();
 
             PatientDetail::create([
                 'user_id' => $user->id,

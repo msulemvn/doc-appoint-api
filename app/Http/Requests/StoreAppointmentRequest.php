@@ -3,8 +3,10 @@
 namespace App\Http\Requests;
 
 use App\Enums\AppointmentStatus;
+use App\Enums\PaymentStatus;
 use App\Models\Appointment;
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
 use Illuminate\Validation\Validator;
 
 class StoreAppointmentRequest extends FormRequest
@@ -20,6 +22,8 @@ class StoreAppointmentRequest extends FormRequest
             'doctor_id' => 'required|integer|exists:doctors,id',
             'appointment_date' => 'required|date|after:now',
             'notes' => 'nullable|string|max:1000',
+            'payment_status' => ['nullable', Rule::enum(PaymentStatus::class)],
+            'payment_intent_id' => 'nullable|string',
         ];
     }
 

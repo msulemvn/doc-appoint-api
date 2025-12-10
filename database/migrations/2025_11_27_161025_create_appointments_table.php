@@ -18,6 +18,9 @@ return new class extends Migration
             $table->dateTime('appointment_date');
             $table->string('status')->default('pending');
             $table->text('notes')->nullable();
+            $table->decimal('price', 8, 2)->default(0);
+            $table->string('payment_status')->default('unpaid');
+            $table->string('payment_intent_id')->nullable();
             $table->timestamps();
         });
     }

@@ -5,10 +5,14 @@ use App\Http\Controllers\API\ChatController;
 use App\Http\Controllers\API\DoctorController;
 use App\Http\Controllers\API\NotificationController;
 use App\Http\Controllers\API\PatientAppointmentController;
+use App\Http\Controllers\API\PaymentController;
+use App\Http\Controllers\API\StripeWebhookController;
 use Illuminate\Support\Facades\Route;
 
 Route::post('login', [AuthController::class, 'login']);
 Route::post('register', [AuthController::class, 'register']);
+
+Route::post('stripe/webhook', [StripeWebhookController::class, 'handleWebhook'])->name('stripe.webhook');
 
 Route::middleware('auth:api')->group(function () {
     Route::post('logout', [AuthController::class, 'logout']);
@@ -33,6 +37,9 @@ Route::middleware('auth:api')->group(function () {
     Route::get('chats/{chat}/messages', [ChatController::class, 'getMessages']);
     Route::post('chats/{chat}/messages', [ChatController::class, 'sendMessage']);
     Route::patch('messages/{message}/read', [ChatController::class, 'markAsRead']);
+
+    Route::post('payments/intent', [PaymentController::class, 'createPaymentIntent']);
+    Route::post('payments/confirm', [PaymentController::class, 'confirmPayment']);
 
     Route::get('notifications', [NotificationController::class, 'index']);
     Route::get('notifications/unread-count', [NotificationController::class, 'unreadCount']);

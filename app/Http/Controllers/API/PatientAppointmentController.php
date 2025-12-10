@@ -244,10 +244,11 @@ class PatientAppointmentController extends Controller
      *         required=true,
      *
      *         @OA\JsonContent(
-     *             required={"doctor_id","appointment_date"},
+     *             required={"doctor_id","appointment_date", "price"},
      *
      *             @OA\Property(property="doctor_id", type="integer", example=1),
      *             @OA\Property(property="appointment_date", type="string", format="date-time", example="2025-12-01 10:00:00"),
+     *             @OA\Property(property="price", type="number", format="float", example=50.00),
      *             @OA\Property(property="notes", type="string", example="Follow-up consultation for chest pain")
      *         )
      *     ),
