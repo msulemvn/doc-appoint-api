@@ -55,6 +55,7 @@ class DoctorResource extends JsonResource
             ->whereIn('status', [
                 AppointmentStatus::PENDING->value,
                 AppointmentStatus::CONFIRMED->value,
+                AppointmentStatus::AWAITING_PAYMENT->value,
             ])
             ->get()
             ->map(fn ($appointment) => Carbon::parse($appointment->appointment_date)->format('H:i'))

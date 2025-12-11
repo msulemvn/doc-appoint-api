@@ -23,6 +23,7 @@ Route::middleware('auth:api')->group(function () {
 
 Route::get('doctors/available', [DoctorController::class, 'available']);
 Route::get('doctors/{doctor}', [DoctorController::class, 'show']);
+Route::get('doctors/{doctor}/available-slots', [DoctorController::class, 'getAvailableSlots']);
 
 Route::middleware('auth:api')->group(function () {
     Route::get('appointments', [PatientAppointmentController::class, 'index']);
