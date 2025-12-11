@@ -18,7 +18,7 @@ class UserResource extends JsonResource
             'id' => $this->id,
             'name' => $this->name,
             'email' => $this->email,
-            'role' => $this->role->label(),
+            'role' => $this->role->value,
             'patient' => $this->when($this->relationLoaded('patient') && $this->patient, fn () => [
                 'phone' => $this->patient->phone,
                 'date_of_birth' => $this->patient->date_of_birth?->format('Y-m-d'),

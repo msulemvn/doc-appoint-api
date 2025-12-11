@@ -48,7 +48,7 @@ class User extends Authenticatable implements JWTSubject
         $array = parent::toArray();
 
         if (isset($array['role']) && $this->role instanceof UserRole) {
-            $array['role'] = $this->role->label();
+            $array['role'] = $this->role->value;
         }
 
         return $array;

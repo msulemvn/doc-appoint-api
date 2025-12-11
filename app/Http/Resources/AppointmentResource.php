@@ -21,7 +21,7 @@ class AppointmentResource extends JsonResource
         return [
             'id' => $this->id,
             'appointment_date' => $this->appointment_date,
-            'status' => $this->status->label(),
+            'status' => $this->status->value,
             'notes' => $this->notes,
             'updated_at' => $this->when(
                 $this->wasRecentlyCreated === false && $this->wasChanged('status'),

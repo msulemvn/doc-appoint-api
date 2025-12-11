@@ -9,6 +9,9 @@ enum UserRole: string
 
     public function label(): string
     {
-        return $this->value;
+        return match ($this) {
+            self::PATIENT => 'Patient',
+            self::DOCTOR => 'Doctor',
+        };
     }
 }

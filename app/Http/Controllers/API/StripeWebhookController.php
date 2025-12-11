@@ -2,8 +2,8 @@
 
 namespace App\Http\Controllers\API;
 
-use App\Enums\AppointmentStatus;
 use App\Actions\Appointment\UpdateAppointmentStatusAction;
+use App\Enums\AppointmentStatus;
 use App\Enums\PaymentStatus;
 use App\Http\Controllers\Controller;
 use App\Models\Appointment;

@@ -28,18 +28,18 @@ class AppointmentStatusUpdatedNotification extends Notification implements Shoul
         $isPatient = $notifiable->role === 'patient';
         $doctorName = $this->appointment->doctor->user->name;
         $patientName = $this->appointment->patient->user->name;
-        $status = $this->appointment->status->value;
+        $statusEnum = $this->appointment->status;
 
         $message = $isPatient
-            ? sprintf('Appointment with Dr. %s is now %s', $doctorName, $status)
-            : sprintf('Appointment with %s is now %s', $patientName, $status);
+            ? sprintf('Appointment with Dr. %s is now %s', $doctorName, $statusEnum->label())
+            : sprintf('Appointment with %s is now %s', $patientName, $statusEnum->label());
 
         return [
             'appointment_id' => $this->appointment->id,
             'patient_name' => $patientName,
             'doctor_name' => $doctorName,
             'appointment_date' => $this->appointment->appointment_date->toDateTimeString(),
-            'status' => $status,
+            'status' => $statusEnum->value,
             'message' => $message,
         ];
     }

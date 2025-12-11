@@ -12,6 +12,12 @@ enum AppointmentStatus: string
 
     public function label(): string
     {
-        return $this->value;
+        return match ($this) {
+            self::PENDING => 'Pending',
+            self::AWAITING_PAYMENT => 'Awaiting Payment',
+            self::CONFIRMED => 'Confirmed',
+            self::CANCELLED => 'Cancelled',
+            self::COMPLETED => 'Completed',
+        };
     }
 }
