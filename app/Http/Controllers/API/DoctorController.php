@@ -2,12 +2,12 @@
 
 namespace App\Http\Controllers\API;
 
-use Carbon\Carbon;
 use App\Enums\AppointmentStatus;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\GetAvailableDoctorsRequest;
 use App\Http\Resources\DoctorResource;
 use App\Models\DoctorDetail;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use OpenApi\Annotations as OA;
 
@@ -258,7 +258,7 @@ class DoctorController extends Controller
             ->whereIn('status', [AppointmentStatus::PENDING->value, AppointmentStatus::CONFIRMED->value, AppointmentStatus::AWAITING_PAYMENT->value])
             ->get();
 
-        $bookedTimes = $bookedAppointments->map(fn($appointment) => Carbon::parse($appointment->appointment_date)->format('h:i A'))->toArray();
+        $bookedTimes = $bookedAppointments->map(fn ($appointment) => Carbon::parse($appointment->appointment_date)->format('h:i A'))->toArray();
 
         // Return only available slots
         $availableTimeSlots = [];

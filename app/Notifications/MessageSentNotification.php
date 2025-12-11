@@ -30,7 +30,7 @@ class MessageSentNotification extends Notification implements ShouldBroadcast, S
 
         return [
             'message_id' => $this->message->id,
-            'chat_id' => $this->message->chat_id,
+            'chat_uuid' => $this->message->chat->uuid,
             'sender_id' => $this->message->user_id,
             'sender_name' => $this->message->sender->name,
             'content' => $this->message->content,
