@@ -69,27 +69,31 @@ class PaymentController extends Controller
         ]);
 
         $appointment = Appointment::findOrFail($request->input('appointment_id'));
-
         Stripe::setApiKey(config('services.stripe.secret'));
 
         try {
             $paymentIntent = PaymentIntent::retrieve($request->input('payment_intent'));
 
-            if ($paymentIntent->status === 'succeeded') {
-                $appointment->payment_status = PaymentStatus::Paid;
-                $appointment->status = AppointmentStatus::CONFIRMED->value;
-                $appointment->payment_intent_id = $paymentIntent->id;
-                $appointment->save();
-
-                event(new PaymentConfirmed($appointment));
-
-                return $this->success([
-                    'success' => true,
-                    'message' => 'Payment confirmed successfully',
-                ]);
+            if ($paymentIntent->status !== 'succeeded') {
+                return $this->error('Payment not completed', 400);
             }
 
-            return $this->error('Payment not completed', 400);
+            if ($appointment->payment_status === PaymentStatus::Paid && $appointment->payment_intent_id === $paymentIntent->id) {
+                return $this->success(['success' => true, 'message' => 'Payment already confirmed']);
+            }
+
+            $appointment->update([
+                'payment_status' => PaymentStatus::Paid,
+                'status' => AppointmentStatus::CONFIRMED->value,
+                'payment_intent_id' => $paymentIntent->id,
+            ]);
+
+            event(new PaymentConfirmed($appointment));
+
+            return $this->success([
+                'success' => true,
+                'message' => 'Payment confirmed successfully',
+            ]);
         } catch (Exception $exception) {
             return $this->error('Failed to confirm payment: '.$exception->getMessage(), 500);
         }

@@ -2,9 +2,9 @@
 
 namespace App\Http\Controllers\API;
 
-use App\Actions\Appointment\UpdateAppointmentStatusAction;
 use App\Enums\AppointmentStatus;
 use App\Enums\PaymentStatus;
+use App\Events\PaymentConfirmed;
 use App\Http\Controllers\Controller;
 use App\Models\Appointment;
 use App\Models\Payment;
@@ -35,14 +35,10 @@ class StripeWebhookController extends Controller
         if ($event->type === 'payment_intent.succeeded') {
             $paymentIntent = $event->data->object;
 
-            $description = $paymentIntent->description;
-            preg_match('/#(\d+)/', (string) $description, $matches);
-            $appointmentId = $matches[1] ?? null;
+            if (isset($paymentIntent->description) && preg_match('/#(\d+)/', (string) $paymentIntent->description, $matches)) {
+                $appointment = Appointment::find($matches[1]);
 
-            if ($appointmentId) {
-                $appointment = Appointment::find($appointmentId);
-
-                if ($appointment) {
+                if ($appointment && ! ($appointment->payment_status === PaymentStatus::Paid && $appointment->payment_intent_id === $paymentIntent->id)) {
                     Payment::create([
                         'appointment_id' => $appointment->id,
                         'amount' => $paymentIntent->amount / 100,
@@ -51,11 +47,13 @@ class StripeWebhookController extends Controller
                         'payment_method' => 'stripe',
                     ]);
 
-                    $appointment->payment_status = PaymentStatus::Paid;
-                    $appointment->payment_intent_id = $paymentIntent->id;
-                    $appointment->save();
+                    $appointment->update([
+                        'payment_status' => PaymentStatus::Paid,
+                        'status' => AppointmentStatus::CONFIRMED->value,
+                        'payment_intent_id' => $paymentIntent->id,
+                    ]);
 
-                    app(UpdateAppointmentStatusAction::class)->execute($appointment, AppointmentStatus::CONFIRMED->value);
+                    event(new PaymentConfirmed($appointment));
                 }
             }
         }
