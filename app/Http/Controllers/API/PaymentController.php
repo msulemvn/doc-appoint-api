@@ -4,6 +4,7 @@ namespace App\Http\Controllers\API;
 
 use App\Enums\AppointmentStatus;
 use App\Enums\PaymentStatus;
+use App\Events\PaymentConfirmed;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\CreatePaymentIntentRequest;
 use App\Models\Appointment;
@@ -79,6 +80,8 @@ class PaymentController extends Controller
                 $appointment->status = AppointmentStatus::CONFIRMED->value;
                 $appointment->payment_intent_id = $paymentIntent->id;
                 $appointment->save();
+
+                event(new PaymentConfirmed($appointment));
 
                 return $this->success([
                     'success' => true,
